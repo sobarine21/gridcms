@@ -13,8 +13,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Initialize Meta Threads API SDK
-app_id = st.secrets["META_THREADS_API_KEY"]
-app_secret = st.secrets["META_THREADS_API_SECRET"]
+app_id = st.secrets["THREADS_APP_ID"]
+app_secret = st.secrets["ACCESS_TOKEN"]
 threads_api = ThreadsAPI(app_id, app_secret)
 
 def get_next_model_and_key():

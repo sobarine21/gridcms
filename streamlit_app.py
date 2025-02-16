@@ -117,6 +117,8 @@ def export_text_to_file(text, file_format):
     elif file_format == "json":
         json_data = json.dumps({"Generated Text": text})
         st.download_button(label="Download as JSON", data=json_data, file_name="generated_text.json", mime="application/json")
+    elif file_format == "md":
+        st.download_button(label="Download as Markdown", data=text, file_name="generated_text.md", mime="text/markdown")
 
 # ---- Main Streamlit App ----
 
@@ -147,7 +149,7 @@ if st.button("Generate Response"):
         search_results = search_web(generated_text)
         display_search_results(search_results)
         st.subheader("Export Generated Content:")
-        for format in ["txt", "csv", "json"]:
+        for format in ["txt", "csv", "json", "md"]:
             export_text_to_file(generated_text, format)
 
 # Regenerate Content Button
@@ -157,5 +159,5 @@ if st.session_state.get('generated_text'):
         st.subheader("Regenerated Content:")
         st.markdown(regenerated_text)
         st.subheader("Export Regenerated Content:")
-        for format in ["txt", "csv", "json"]:
+        for format in ["txt", "csv", "json", "md"]:
             export_text_to_file(regenerated_text, format)

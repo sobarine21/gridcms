@@ -121,12 +121,12 @@ def export_text_to_file(text, file_format):
         st.download_button(label="Download as JSON", data=json_data, file_name="generated_text.json", mime="application/json")
 
 def threads_login():
-    """Handles the OAuth2 login process for Threads"""
+    """Handles the OAuth2 login process for Threads."""
     client_id = st.secrets["THREADS_APP_ID"]
     client_secret = st.secrets["THREADS_APP_SECRET"]
     redirect_uri = "https://gridcms.streamlit.app/"
-    authorization_base_url = "https://api.threads.com/oauth/authorize"
-    token_url = "https://api.threads.com/oauth/token"
+    authorization_base_url = "https://www.instagram.com/oauth/authorize"
+    token_url = "https://graph.instagram.com/oauth/access_token"
 
     threads = OAuth2Session(client_id, redirect_uri=redirect_uri)
     authorization_url, state = threads.authorization_url(authorization_base_url)
@@ -149,12 +149,16 @@ def post_to_threads(content):
         st.warning("Please log in to Threads first.")
         return
 
-    api_url = "https://api.threads.com/v1/posts"
+    api_url = "https://graph.instagram.com/v13.0/me/media_publish"
     headers = {"Authorization": f"Bearer {st.session_state.oauth_token['access_token']}"}
-    payload = {"content": content}
+    payload = {
+        "access_token": st.session_state.oauth_token["access_token"],
+        "image_url": "https://example.com/image.jpg",  # Replace with the actual URL of the generated image
+        "caption": content
+    }
 
-    response = requests.post(api_url, headers=headers, json=payload)
-    if response.status_code == 201:
+    response = requests.post(api_url, data=payload)
+    if response.status_code == 200:
         st.success("Content successfully posted to Threads.")
     else:
         st.error(f"Failed to post content: {response.status_code}")

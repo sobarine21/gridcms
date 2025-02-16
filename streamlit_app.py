@@ -121,7 +121,7 @@ def export_text_to_file(text, file_format):
         st.download_button(label="Download as JSON", data=json_data, file_name="generated_text.json", mime="application/json")
 
 def threads_login():
-    """Handles the OAuth2 login process for Threads."""
+    """Handles the OAuth2 login process for Threads"""
     client_id = st.secrets["THREADS_APP_ID"]
     client_secret = st.secrets["THREADS_APP_SECRET"]
     redirect_uri = "https://gridcms.streamlit.app/"

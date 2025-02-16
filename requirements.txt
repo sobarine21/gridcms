@@ -2,4 +2,4 @@ streamlit
 google-generativeai 
 requests 
 pandas
-requests_oauthlib
+streamlit-oauth

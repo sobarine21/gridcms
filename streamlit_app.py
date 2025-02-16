@@ -65,7 +65,11 @@ if code:
                     st.success("Content posted successfully")
                 else:
                     st.error(f"Failed to post content: {threads_response.status_code}")
+                    st.write("Error Response:")
+                    st.write(threads_response.text)
             except Exception as e:
                 st.error(f"Error: {e}")
     else:
         st.error(f"Failed to obtain access token: {token_response.status_code}")
+        st.write("Error Response:")
+        st.write(token_response.text)

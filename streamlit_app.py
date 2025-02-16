@@ -469,4 +469,4 @@ if st.button("Generate Job Description"):
 st.subheader("Generate Interview Questions")
 job_role = st.text_input("Enter the job role for interview questions:")
 if st.button("Generate Interview Questions"):
-    interview_questions = generate_interview_questions ▋
+    interview_questions = generate_interview_questions 

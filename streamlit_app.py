@@ -6,16 +6,21 @@ import random
 import uuid
 import json
 import pandas as pd
+import urllib.parse
 
+# ---- Hide Streamlit Default Menu ----
 st.markdown("""
-    <style>#MainMenu {visibility: hidden;} header {visibility: hidden;} footer {visibility: hidden;}</style>
+    <style>
+        #MainMenu {visibility: hidden;}
+        header {visibility: hidden;}
+        footer {visibility: hidden;}
+    </style>
 """, unsafe_allow_html=True)
 
-# Meta Threads API Authentication
-app_id = st.secrets["THREADS_APP_ID"]
-access_token = st.secrets["ACCESS_TOKEN"]
+# ---- Helper Functions ----
 
 def get_next_model_and_key():
+    """Cycle through available Gemini models and corresponding API keys."""
     models_and_keys = [
         ('gemini-1.5-flash', st.secrets["API_KEY_GEMINI_1_5_FLASH"]),
         ('gemini-2.0-flash', st.secrets["API_KEY_GEMINI_2_0_FLASH"]),
@@ -25,17 +30,19 @@ def get_next_model_and_key():
     return random.choice(models_and_keys)
 
 def initialize_session():
-    defaults = {
+    """Initializes session variables securely."""
+    session_defaults = {
         "session_count": 0,
         "block_time": None,
         "user_hash": str(uuid.uuid4()),
         "generated_text": "",
     }
-    for key, value in defaults.items():
+    for key, value in session_defaults.items():
         if key not in st.session_state:
             st.session_state[key] = value
 
 def check_session_limit():
+    """Checks if the user has reached the session limit and manages block time."""
     if st.session_state.block_time:
         time_left = st.session_state.block_time - time.time()
         if time_left > 0:
@@ -43,12 +50,14 @@ def check_session_limit():
             st.stop()
         else:
             st.session_state.block_time = None
+    
     if st.session_state.session_count >= 5:
-        st.session_state.block_time = time.time() + 15 * 60
+        st.session_state.block_time = time.time() + 15 * 60  # Block for 15 minutes
         st.warning("Session limit reached. Please wait 15 minutes or upgrade to Pro.")
         st.stop()
 
 def generate_content(prompt):
+    """Generates content using Generative AI."""
     try:
         model, api_key = get_next_model_and_key()
         genai.configure(api_key=api_key)
@@ -56,84 +65,103 @@ def generate_content(prompt):
         response = generative_model.generate_content(prompt)
         return response.text.strip() if response and response.text else "No valid response generated."
     except Exception as e:
-        return f"Error: {str(e)}"
+        return f"Error generating content: {str(e)}"
 
 def search_web(query):
+    """Searches the web using Google Custom Search API and returns results."""
     try:
         api_key = st.secrets["GOOGLE_API_KEY"]
         search_engine_id = st.secrets["GOOGLE_SEARCH_ENGINE_ID"]
-        response = requests.get("https://www.googleapis.com/customsearch/v1", params={"key": api_key, "cx": search_engine_id, "q": query})
+        search_url = "https://www.googleapis.com/customsearch/v1"
+        params = {"key": api_key, "cx": search_engine_id, "q": query}
+        response = requests.get(search_url, params=params)
         return response.json().get("items", []) if response.status_code == 200 else f"Search API Error: {response.status_code}"
     except Exception as e:
         return f"Request failed: {str(e)}"
 
 def display_search_results(search_results):
+    """Displays search results in a structured format."""
     if isinstance(search_results, str):
         st.warning(search_results)
         return
     if search_results:
         st.warning("Similar content found on the web:")
-        for result in search_results[:5]:
+        for result in search_results[:5]:  # Show top 5 results
             with st.expander(result.get('title', 'No Title')):
                 st.write(f"**Source:** [{result.get('link', 'Unknown')}]({result.get('link', '#')})")
                 st.write(f"**Snippet:** {result.get('snippet', 'No snippet available.')}")
                 st.write("---")
     else:
-        st.success("No similar content found online.")
+        st.success("No similar content found online. Your content seems original!")
 
 def regenerate_content(original_content):
+    """Generates rewritten content to ensure originality."""
     try:
         model, api_key = get_next_model_and_key()
         genai.configure(api_key=api_key)
         generative_model = genai.GenerativeModel(model)
-        response = generative_model.generate_content(f"Rewrite the following content:\n\n{original_content}")
+        prompt = f"Rewrite the following content to make it original:\n\n{original_content}"
+        response = generative_model.generate_content(prompt)
         return response.text.strip() if response and response.text else "Regeneration failed."
     except Exception as e:
-        return f"Error: {str(e)}"
+        return f"Error regenerating content: {str(e)}"
 
 def export_text_to_file(text, file_format):
+    """Exports the generated text to a file."""
     if file_format == "txt":
-        st.download_button("Download as Text", text, "generated_text.txt", "text/plain")
+        st.download_button(label="Download as Text", data=text, file_name="generated_text.txt", mime="text/plain")
     elif file_format == "csv":
         df = pd.DataFrame([{"Generated Text": text}])
-        st.download_button("Download as CSV", df.to_csv(index=False), "generated_text.csv", "text/csv")
+        csv = df.to_csv(index=False)
+        st.download_button(label="Download as CSV", data=csv, file_name="generated_text.csv", mime="text/csv")
     elif file_format == "json":
-        st.download_button("Download as JSON", json.dumps({"Generated Text": text}), "generated_text.json", "application/json")
+        json_data = json.dumps({"Generated Text": text})
+        st.download_button(label="Download as JSON", data=json_data, file_name="generated_text.json", mime="application/json")
 
-# Function to post content to Meta Threads using direct API request
 def post_to_threads(content):
-    url = f"https://graph.facebook.com/v16.0/{app_id}/threads"
-    headers = {"Authorization": f"Bearer {access_token}"}
-    payload = {"message": content}  # The content to post to the thread
-
+    """Posts the generated content to Threads using Meta API."""
     try:
-        response = requests.post(url, headers=headers, data=payload)
-        response_data = response.json()
-        
+        access_token = st.secrets["META_ACCESS_TOKEN"]
+        app_id = st.secrets["META_APP_ID"]
+        url = f"https://graph.facebook.com/v10.0/{app_id}/feed"
+        headers = {
+            "Authorization": f"Bearer {access_token}",
+            "Content-Type": "application/json"
+        }
+        data = {
+            "message": content
+        }
+        response = requests.post(url, headers=headers, json=data)
         if response.status_code == 200:
-            thread_id = response_data.get("id", "No ID found")
-            st.success(f'Posted to Threads: {thread_id}')
+            return "Content posted successfully."
         else:
-            st.error(f'Error posting to Threads: {response_data.get("error", {}).get("message", "Unknown error")}')
+            return f"Failed to post content: {response.status_code} {response.text}"
     except Exception as e:
-        st.error(f'Error posting to Threads: {str(e)}')
+        return f"Error posting to Threads: {str(e)}"
 
+# ---- Main Streamlit App ----
+
+# Initialize session tracking
 initialize_session()
 
+# App Title and Description
 st.title("AI-Powered Ghostwriter")
 st.write("Generate high-quality content and check for originality using Generative AI and Google Search.")
 
+# Prompt Input Field
 prompt = st.text_area("Enter your prompt:", placeholder="Write a blog about AI trends in 2025.")
 
+# Session management to check for block time and session limits
 check_session_limit()
 
+# Generate Content Button
 if st.button("Generate Response"):
     if not prompt.strip():
         st.warning("Please enter a valid prompt.")
     else:
         generated_text = generate_content(prompt)
         st.session_state.session_count += 1
-        st.session_state.generated_text = generated_text
+        st.session_state.generated_text = generated_text  # Store for potential regeneration
         st.subheader("Generated Content:")
         st.markdown(generated_text)
         st.subheader("Searching for Similar Content Online:")
@@ -142,15 +170,21 @@ if st.button("Generate Response"):
         st.subheader("Export Generated Content:")
         for format in ["txt", "csv", "json"]:
             export_text_to_file(generated_text, format)
+        st.subheader("Post Generated Content to Threads:")
+        if st.button("Post to Threads"):
+            result = post_to_threads(generated_text)
+            st.success(result)
 
-if st.session_state.get('generated_text') and st.button("Regenerate Content"):
-    regenerated_text = regenerate_content(st.session_state.generated_text)
-    st.subheader("Regenerated Content:")
-    st.markdown(regenerated_text)
-    st.subheader("Export Regenerated Content:")
-    for format in ["txt", "csv", "json"]:
-        export_text_to_file(regenerated_text, format)
-
-if st.session_state.get('generated_text') and st.button("Post to Threads"):
-    content = st.session_state.generated_text
-    post_to_threads(content)
+# Regenerate Content Button
+if st.session_state.get('generated_text'):
+    if st.button("Regenerate Content"):
+        regenerated_text = regenerate_content(st.session_state.generated_text)
+        st.subheader("Regenerated Content:")
+        st.markdown(regenerated_text)
+        st.subheader("Export Regenerated Content:")
+        for format in ["txt", "csv", "json"]:
+            export_text_to_file(regenerated_text, format)
+        st.subheader("Post Regenerated Content to Threads:")
+        if st.button("Post Regenerated Content to Threads"):
+            result = post_to_threads(regenerated_text)
+            st.success(result)

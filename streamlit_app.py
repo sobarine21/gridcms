@@ -63,12 +63,11 @@ def obtain_user_access_token(app_id, app_secret):
             return None
     return None
 
-# Function to post generated content to Threads
+# Function to post generated content to Threads (text only)
 def post_content_to_threads(user_access_token, generated_text):
     threads_url = "https://graph.instagram.com/v13.0/me/media_publish"
     threads_data = {
         "access_token": user_access_token,
-        "image_url": "https://example.com/image.jpg",  # Replace with generated image URL if applicable
         "caption": generated_text  # Use the generated text as the caption
     }
 
@@ -117,9 +116,8 @@ if "access_token" in st.session_state:
             st.markdown(generated_text)
             
             # Optionally display an image if needed for posting
-            st.write("If you want to post an image, provide the image URL below.")
-            image_url = st.text_input("Image URL (optional):")
-            
+            st.write("Ready to post the generated text to Threads.")
+
             if st.button("Post to Threads"):
                 user_access_token = st.session_state.access_token
                 if user_access_token:

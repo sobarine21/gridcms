@@ -496,4 +496,4 @@ if st.button("Generate Response"):
     else:
         generated_text = generate_content(prompt)
         st.session_state.session_count += 1
-        st.session_state.generated_text = generated_text  
+        st.session_state.generated_text = generated_text 

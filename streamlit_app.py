@@ -120,6 +120,20 @@ def export_text_to_file(text, file_format):
     elif file_format == "md":
         st.download_button(label="Download as Markdown", data=text, file_name="generated_text.md", mime="text/markdown")
 
+# ---- New Feature Functions ----
+
+def generate_poem(theme):
+    prompt = f"Write a poem about {theme}"
+    return generate_content(prompt)
+
+def generate_code_snippet(description):
+    prompt = f"Generate a code snippet for {description}"
+    return generate_content(prompt)
+
+def generate_recipe(ingredients):
+    prompt = f"Create a recipe using the following ingredients: {ingredients}"
+    return generate_content(prompt)
+
 # ---- Main Streamlit App ----
 
 # Initialize session tracking
@@ -161,3 +175,26 @@ if st.session_state.get('generated_text'):
         st.subheader("Export Regenerated Content:")
         for format in ["txt", "csv", "json", "md"]:
             export_text_to_file(regenerated_text, format)
+
+# ---- New Feature Sections ----
+
+st.subheader("Generate Poem")
+poem_theme = st.text_input("Enter a theme for the poem:")
+if st.button("Generate Poem"):
+    poem = generate_poem(poem_theme)
+    st.markdown(poem)
+    export_text_to_file(poem, "md")
+
+st.subheader("Generate Code Snippet")
+code_description = st.text_input("Enter a description for the code snippet:")
+if st.button("Generate Code Snippet"):
+    code_snippet = generate_code_snippet(code_description)
+    st.markdown(f"```python\n{code_snippet}\n```")
+    export_text_to_file(code_snippet, "md")
+
+st.subheader("Generate Recipe")
+ingredients = st.text_input("Enter ingredients for the recipe:")
+if st.button("Generate Recipe"):
+    recipe = generate_recipe(ingredients)
+    st.markdown(recipe)
+    export_text_to_file(recipe, "md")

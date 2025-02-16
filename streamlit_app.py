@@ -6,16 +6,14 @@ import random
 import uuid
 import json
 import pandas as pd
-from meta_threads_sdk import ThreadsAPI  # Meta Threads SDK import
 
 st.markdown("""
     <style>#MainMenu {visibility: hidden;} header {visibility: hidden;} footer {visibility: hidden;}</style>
 """, unsafe_allow_html=True)
 
-# Initialize Meta Threads API SDK
+# Meta Threads API Authentication
 app_id = st.secrets["THREADS_APP_ID"]
-app_secret = st.secrets["ACCESS_TOKEN"]
-threads_api = ThreadsAPI(app_id, app_secret)
+access_token = st.secrets["ACCESS_TOKEN"]
 
 def get_next_model_and_key():
     models_and_keys = [
@@ -102,12 +100,21 @@ def export_text_to_file(text, file_format):
     elif file_format == "json":
         st.download_button("Download as JSON", json.dumps({"Generated Text": text}), "generated_text.json", "application/json")
 
-# Function to post content to Meta Threads
+# Function to post content to Meta Threads using direct API request
 def post_to_threads(content):
+    url = f"https://graph.facebook.com/v16.0/{app_id}/threads"
+    headers = {"Authorization": f"Bearer {access_token}"}
+    payload = {"message": content}  # The content to post to the thread
+
     try:
-        response = threads_api.create_thread(content)
-        thread_id = response.json()['id']
-        st.success(f'Posted to Threads: {thread_id}')
+        response = requests.post(url, headers=headers, data=payload)
+        response_data = response.json()
+        
+        if response.status_code == 200:
+            thread_id = response_data.get("id", "No ID found")
+            st.success(f'Posted to Threads: {thread_id}')
+        else:
+            st.error(f'Error posting to Threads: {response_data.get("error", {}).get("message", "Unknown error")}')
     except Exception as e:
         st.error(f'Error posting to Threads: {str(e)}')
 

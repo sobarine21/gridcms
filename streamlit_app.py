@@ -23,10 +23,10 @@ st.markdown("""
 def get_next_model_and_key():
     """Cycle through available Gemini models and corresponding API keys."""
     models_and_keys = [
-        ('gemini-1.5-flash', st.secrets["API_KEY_GEMINI_1_5_FLASH"]),
-        ('gemini-2.0-flash', st.secrets["API_KEY_GEMINI_2_0_FLASH"]),
-        ('gemini-1.5-flash-8b', st.secrets["API_KEY_GEMINI_1_5_FLASH_8B"]),
-        ('gemini-2.0-flash-exp', st.secrets["API_KEY_GEMINI_2_0_FLASH_EXP"]),
+        ('gemini-1.5-flash', st.secrets["API_KEYS"]["API_KEY_GEMINI_1_5_FLASH"]),
+        ('gemini-2.0-flash', st.secrets["API_KEYS"]["API_KEY_GEMINI_2_0_FLASH"]),
+        ('gemini-1.5-flash-8b', st.secrets["API_KEYS"]["API_KEY_GEMINI_1_5_FLASH_8B"]),
+        ('gemini-2.0-flash-exp', st.secrets["API_KEYS"]["API_KEY_GEMINI_2_0_FLASH_EXP"]),
     ]
     return random.choice(models_and_keys)
 
@@ -72,8 +72,8 @@ def generate_content(prompt):
 def search_web(query):
     """Searches the web using Google Custom Search API and returns results."""
     try:
-        api_key = st.secrets["GOOGLE_API_KEY"]
-        search_engine_id = st.secrets["GOOGLE_SEARCH_ENGINE_ID"]
+        api_key = st.secrets["GOOGLE"]["GOOGLE_API_KEY"]
+        search_engine_id = st.secrets["GOOGLE"]["GOOGLE_SEARCH_ENGINE_ID"]
         search_url = "https://www.googleapis.com/customsearch/v1"
         params = {"key": api_key, "cx": search_engine_id, "q": query}
         response = requests.get(search_url, params=params)
@@ -122,8 +122,8 @@ def export_text_to_file(text, file_format):
 
 def threads_login():
     """Handles the OAuth2 login process for Threads."""
-    client_id = st.secrets["THREADS_APP_ID"]
-    client_secret = st.secrets["THREADS_APP_SECRET"]
+    client_id = st.secrets["THREADS"]["THREADS_APP_ID"]
+    client_secret = st.secrets["THREADS"]["THREADS_APP_SECRET"]
     redirect_uri = "https://gridcms.streamlit.app/"
     authorization_base_url = "https://www.instagram.com/oauth/authorize"
     token_url = "https://graph.instagram.com/oauth/access_token"
@@ -157,11 +157,11 @@ def post_to_threads(content):
         "caption": content
     }
 
-    response = requests.post(api_url, data=payload)
+    response = requests.post(api_url, data=payload, headers=headers)
     if response.status_code == 200:
         st.success("Content successfully posted to Threads.")
     else:
-        st.error(f"Failed to post content: {response.status_code}")
+        st.error(f"Failed to post content: {response.status_code} - {response.json().get('error_message', 'Unknown error')}")
 
 # ---- Main Streamlit App ----
 

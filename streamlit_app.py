@@ -322,158 +322,6 @@ def generate_travel_packing_list(destination, duration):
     prompt = f"Provide a packing list for a trip to {destination} for a duration of {duration}"
     return generate_content(prompt)
 
-def generate_diet_plan(dietary_goals):
-    prompt = f"Create a diet plan to achieve the following dietary goals: {dietary_goals}"
-    return generate_content(prompt)
-
-def generate_inspirational_quote(theme):
-    prompt = f"Provide an inspirational quote about {theme}"
-    return generate_content(prompt)
-
-def generate_fun_fact(theme):
-    prompt = f"Provide a fun fact about {theme}"
-    return generate_content(prompt)
-
-def generate_parenting_tips(child_age):
-    prompt = f"Provide parenting tips for a child of the following age: {child_age}"
-    return generate_content(prompt)
-
-def generate_trivia_question(theme):
-    prompt = f"Create a trivia question about {theme}"
-    return generate_content(prompt)
-
-def generate_poetry_analysis(poem):
-    prompt = f"Analyze the following poem: {poem}"
-    return generate_content(prompt)
-
-def generate_short_story(theme):
-    prompt = f"Write a short story about {theme}"
-    return generate_content(prompt)
-
-def generate_journal_prompt(theme):
-    prompt = f"Provide a journal prompt about {theme}"
-    return generate_content(prompt)
-
-def generate_icebreaker_question(theme):
-    prompt = f"Provide an icebreaker question about {theme}"
-    return generate_content(prompt)
-
-def generate_travel_guide(destination):
-    prompt = f"Create a travel guide for {destination}"
-    return generate_content(prompt)
-
-def generate_cooking_tip(ingredient):
-    prompt = f"Provide a cooking tip for {ingredient}"
-    return generate_content(prompt)
-
-def generate_yoga_routine(goal):
-    prompt = f"Create a yoga routine to achieve the following goal: {goal}"
-    return generate_content(prompt)
-
-def generate_motivational_speech(theme):
-    prompt = f"Write a motivational speech about {theme}"
-    return generate_content(prompt)
-
-def generate_skincare_routine(skin_type):
-    prompt = f"Create a skincare routine for the following skin type: {skin_type}"
-    return generate_content(prompt)
-
-def generate_birthday_message(theme):
-    prompt = f"Write a birthday message about {theme}"
-    return generate_content(prompt)
-
-def generate_life_hack(category):
-    prompt = f"Provide a life hack for {category}"
-    return generate_content(prompt)
-
-def generate_healthy_snack_idea(ingredient):
-    prompt = f"Suggest a healthy snack idea using {ingredient}"
-    return generate_content(prompt)
-
-def generate_self_care_tip(category):
-    prompt = f"Provide a self-care tip for {category}"
-    return generate_content(prompt)
-
-def generate_diy_craft_idea(materials):
-    prompt = f"Suggest a DIY craft idea using {materials}"
-    return generate_content(prompt)
-
-def generate_fitness_tip(goal):
-    prompt = f"Provide a fitness tip for {goal}"
-    return generate_content(prompt)
-
-def generate_personal_motto(theme):
-    prompt = f"Create a personal motto about {theme}"
-    return generate_content(prompt)
-
-def generate_daily_planner(tasks):
-    prompt = f"Create a daily planner for the following tasks: {tasks}"
-    return generate_content(prompt)
-
-def generate_weekly_planner(tasks):
-    prompt = f"Create a weekly planner for the following tasks: {tasks}"
-    return generate_content(prompt)
-
-def generate_monthly_planner(tasks):
-    prompt = f"Create a monthly planner for the following tasks: {tasks}"
-    return generate_content(prompt)
-
-def generate_yearly_goal(goal):
-    prompt = f"Create a yearly goal plan for {goal}"
-    return generate_content(prompt)
-
-def generate_budget_plan(financial_goal):
-    prompt = f"Create a budget plan to achieve the following financial goal: {financial_goal}"
-    return generate_content(prompt)
-
-def generate_home_organization_tip(category):
-    prompt = f"Provide a home organization tip for {category}"
-    return generate_content(prompt)
-
-def generate_language_tip(language):
-    prompt = f"Provide a language learning tip for {language}"
-    return generate_content(prompt)
-
-def generate_productivity_tip(task):
-    prompt = f"Provide a productivity tip for {task}"
-    return generate_content(prompt)
-
-def generate_study_tip(subject):
-    prompt = f"Provide a study tip for {subject}"
-    return generate_content(prompt)
-
-def generate_travel_tip(destination):
-    prompt = f"Provide a travel tip for {destination}"
-    return generate_content(prompt)
-
-def generate_career_tip(field):
-    prompt = f"Provide a career tip for {field}"
-    return generate_content(prompt)
-
-def generate_networking_tip(goal):
-    prompt = f"Provide a networking tip to achieve the following goal: {goal}"
-    return generate_content(prompt)
-
-def generate_public_speaking_tip(theme):
-    prompt = f"Provide a public speaking tip for {theme}"
-    return generate_content(prompt)
-
-def generate_leadership_tip(goal):
-    prompt = f"Provide a leadership tip to achieve the following goal: {goal}"
-    return generate_content(prompt)
-
-def generate_team_building_activity(goal):
-    prompt = f"Suggest a team-building activity to achieve the following goal: {goal}"
-    return generate_content(prompt)
-
-def generate_conflict_resolution_tip(situation):
-    prompt = f"Provide a conflict resolution tip for the following situation: {situation}"
-    return generate_content(prompt)
-
-def generate_time_management_tip(task):
-    prompt = f"Provide a time management tip for {task}"
-    return generate_content(prompt)
-
 # ---- Main Streamlit App ----
 
 # Initialize session tracking
@@ -496,4 +344,129 @@ if st.button("Generate Response"):
     else:
         generated_text = generate_content(prompt)
         st.session_state.session_count += 1
-        st.session_state.generated_text = generated_text 
+        st.session_state.generated_text = generated_text  # Store for potential regeneration
+        st.subheader("Generated Content:")
+        st.markdown(generated_text)
+        st.subheader("Searching for Similar Content Online:")
+        search_results = search_web(generated_text)
+        display_search_results(search_results)
+        st.subheader("Export Generated Content:")
+        for format in ["txt", "csv", "json", "md"]:
+            export_text_to_file(generated_text, format)
+
+# Regenerate Content Button
+if st.session_state.get('generated_text'):
+    if st.button("Regenerate Content"):
+        regenerated_text = regenerate_content(st.session_state.generated_text)
+        st.subheader("Regenerated Content:")
+        st.markdown(regenerated_text)
+        st.subheader("Export Regenerated Content:")
+        for format in ["txt", "csv", "json", "md"]:
+            export_text_to_file(regenerated_text, format)
+
+# ---- New Feature Sections ----
+
+st.subheader("Generate Poem")
+poem_theme = st.text_input("Enter a theme for the poem:")
+if st.button("Generate Poem"):
+    poem = generate_poem(poem_theme)
+    st.markdown(poem)
+    export_text_to_file(poem, "md")
+
+st.subheader("Generate Code Snippet")
+code_description = st.text_input("Enter a description for the code snippet:")
+if st.button("Generate Code Snippet"):
+    code_snippet = generate_code_snippet(code_description)
+    st.markdown(f"```python\n{code_snippet}\n```")
+    export_text_to_file(code_snippet, "md")
+
+st.subheader("Generate Recipe")
+ingredients = st.text_input("Enter ingredients for the recipe:")
+if st.button("Generate Recipe"):
+    recipe = generate_recipe(ingredients)
+    st.markdown(recipe)
+    export_text_to_file(recipe, "md")
+
+st.subheader("Generate Song Lyrics")
+song_theme = st.text_input("Enter a theme for the song lyrics:")
+if st.button("Generate Song Lyrics"):
+    lyrics = generate_song_lyrics(song_theme)
+    st.markdown(lyrics)
+    export_text_to_file(lyrics, "md")
+
+st.subheader("Generate Workout Plan")
+fitness_goal = st.text_input("Enter your fitness goal:")
+if st.button("Generate Workout Plan"):
+    workout_plan = generate_workout_plan(fitness_goal)
+    st.markdown(workout_plan)
+    export_text_to_file(workout_plan, "md")
+
+st.subheader("Generate Travel Itinerary")
+destination = st.text_input("Enter your travel destination:")
+if st.button("Generate Travel Itinerary"):
+    itinerary = generate_travel_itinerary(destination)
+    st.markdown(itinerary)
+    export_text_to_file(itinerary, "md")
+
+st.subheader("Generate Business Plan")
+business_idea = st.text_input("Enter your business idea:")
+if st.button("Generate Business Plan"):
+    business_plan = generate_business_plan(business_idea)
+    st.markdown(business_plan)
+    export_text_to_file(business_plan, "md")
+
+st.subheader("Generate Study Schedule")
+subjects = st.text_input("Enter the subjects to study:")
+time = st.text_input("Enter the available study time:")
+if st.button("Generate Study Schedule"):
+    study_schedule = generate_study_schedule(subjects, time)
+    st.markdown(study_schedule)
+    export_text_to_file(study_schedule, "md")
+
+st.subheader("Generate Book Summary")
+book_title = st.text_input("Enter the book title:")
+book_author = st.text_input("Enter the book author:")
+if st.button("Generate Book Summary"):
+    book_summary = generate_book_summary(book_title, book_author)
+    st.markdown(book_summary)
+    export_text_to_file(book_summary, "md")
+
+st.subheader("Generate Meditation Guide")
+preferences = st.text_input("Enter your meditation preferences:")
+if st.button("Generate Meditation Guide"):
+    meditation_guide = generate_meditation_guide(preferences)
+    st.markdown(meditation_guide)
+    export_text_to_file(meditation_guide, "md")
+
+st.subheader("Generate Marketing Strategy")
+business_goals = st.text_input("Enter your business goals:")
+if st.button("Generate Marketing Strategy"):
+    marketing_strategy = generate_marketing_strategy(business_goals)
+    st.markdown(marketing_strategy)
+    export_text_to_file(marketing_strategy, "md")
+
+st.subheader("Generate Investment Plan")
+financial_goals = st.text_input("Enter your financial goals:")
+if st.button("Generate Investment Plan"):
+    investment_plan = generate_investment_plan(financial_goals)
+    st.markdown(investment_plan)
+    export_text_to_file(investment_plan, "md")
+
+st.subheader("Generate Meal Plan")
+dietary_preferences = st.text_input("Enter your dietary preferences:")
+if st.button("Generate Meal Plan"):
+    meal_plan = generate_meal_plan(dietary_preferences)
+    st.markdown(meal_plan)
+    export_text_to_file(meal_plan, "md")
+
+st.subheader("Generate Job Description")
+job_role = st.text_input("Enter the job role:")
+if st.button("Generate Job Description"):
+    job_description = generate_job_description(job_role)
+    st.markdown(job_description)
+    export_text_to_file(job_description, "md")
+
+st.subheader("Generate Interview Questions")
+job_role = st.text_input("Enter the job role for interview questions:")
+if st.button("Generate Interview Questions"):
+    interview_questions = generate_interview_questions

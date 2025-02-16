@@ -434,4 +434,4 @@ def generate_pet_care_guide(pet_type):
     st.markdown(pet_care_guide)
     st.subheader("Searching for Similar Content Online:")
     search_results = search_web(pet_care_guide)
-    display_search_results(search ▋
+    display_search_results(search)

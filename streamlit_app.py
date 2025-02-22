@@ -1,4 +1,3 @@
-from huggingface_hub import InferenceClient
 import streamlit as st
 import google.generativeai as genai
 import requests
@@ -10,12 +9,6 @@ import pandas as pd
 import os
 import pyttsx3
 from io import BytesIO
-
-# Configure Hugging Face Inference Client
-hf_client = InferenceClient(
-    provider="hyperbolic",
-    api_key="hf_xxxxxxxxxxxxxxxxxxxxxxxx"
-)
 
 # ---- Hide Streamlit Default Menu ----
 st.markdown("""
@@ -65,21 +58,14 @@ def check_session_limit():
         st.warning("Session limit reached. Please wait 15 minutes or upgrade to Pro.")
         st.stop()
 
-def generate_content(prompt, model="deepseek-ai/DeepSeek-R1"):
-    """Generates content using the specified model."""
+def generate_content(prompt):
+    """Generates content using Generative AI."""
     try:
-        messages = [
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ]
-        completion = hf_client.chat.completions.create(
-            model=model,
-            messages=messages,
-            max_tokens=500,
-        )
-        return completion.choices[0].message.content.strip() if completion and completion.choices else "No valid response generated."
+        model, api_key = get_next_model_and_key()
+        genai.configure(api_key=api_key)
+        generative_model = genai.GenerativeModel(model)
+        response = generative_model.generate_content(prompt)
+        return response.text.strip() if response and response.text else "No valid response generated."
     except Exception as e:
         return f"Error generating content: {str(e)}"
 

@@ -38,6 +38,7 @@ def initialize_session():
         "block_time": None,
         "user_hash": str(uuid.uuid4()),
         "generated_text": "",
+        "regenerated_text": "",
     }
     for key, value in session_defaults.items():
         if key not in st.session_state:
@@ -319,8 +320,12 @@ if st.button("Generate Response"):
         st.subheader("Export Generated Content:")
         for format in ["txt", "csv", "json", "md"]:
             export_text_to_file(generated_text, format)
+
+# Generate Podcast Button
+if st.session_state.get('generated_text'):
+    if st.button("Generate Podcast"):
         st.subheader("Download as Podcast:")
-        audio_data = text_to_speech(generated_text)
+        audio_data = text_to_speech(st.session_state.generated_text)
         st.audio(audio_data, format='audio/wav')
         st.download_button(label="Download Podcast", data=audio_data, file_name="generated_content.wav", mime="audio/wav")
 
@@ -328,13 +333,18 @@ if st.button("Generate Response"):
 if st.session_state.get('generated_text'):
     if st.button("Regenerate Content"):
         regenerated_text = regenerate_content(st.session_state.generated_text)
+        st.session_state.regenerated_text = regenerated_text  # Store for potential podcast generation
         st.subheader("Regenerated Content:")
         st.markdown(regenerated_text)
         st.subheader("Export Regenerated Content:")
         for format in ["txt", "csv", "json", "md"]:
             export_text_to_file(regenerated_text, format)
+
+# Generate Podcast for Regenerated Content
+if st.session_state.get('regenerated_text'):
+    if st.button("Generate Podcast for Regenerated Content"):
         st.subheader("Download as Podcast:")
-        audio_data = text_to_speech(regenerated_text)
+        audio_data = text_to_speech(st.session_state.regenerated_text)
         st.audio(audio_data, format='audio/wav')
         st.download_button(label="Download Podcast", data=audio_data, file_name="regenerated_content.wav", mime="audio/wav")
 
@@ -346,9 +356,10 @@ if st.button("Generate Poem"):
     poem = generate_poem(poem_theme)
     st.markdown(poem)
     export_text_to_file(poem, "md")
-    audio_data = text_to_speech(poem)
-    st.audio(audio_data, format='audio/wav')
-    st.download_button(label="Download Podcast", data=audio_data, file_name="poem.wav", mime="audio/wav")
+    if st.button("Generate Podcast for Poem"):
+        audio_data = text_to_speech(poem)
+        st.audio(audio_data, format='audio/wav')
+        st.download_button(label="Download Podcast", data=audio_data, file_name="poem.wav", mime="audio/wav")
 
 st.subheader("Generate Code Snippet")
 code_description = st.text_input("Enter a description for the code snippet:")
@@ -356,9 +367,10 @@ if st.button("Generate Code Snippet"):
     code_snippet = generate_code_snippet(code_description)
     st.markdown(f"```python\n{code_snippet}\n```")
     export_text_to_file(code_snippet, "md")
-    audio_data = text_to_speech(code_snippet)
-    st.audio(audio_data, format='audio/wav')
-    st.download_button(label="Download Podcast", data=audio_data, file_name="code_snippet.wav", mime="audio/wav")
+    if st.button("Generate Podcast for Code Snippet"):
+        audio_data = text_to_speech(code_snippet)
+        st.audio(audio_data, format='audio/wav')
+        st.download_button(label="Download Podcast", data=audio_data, file_name="code_snippet.wav", mime="audio/wav")
 
 st.subheader("Generate Song Lyrics")
 song_theme = st.text_input("Enter a theme for the song lyrics:")
@@ -366,9 +378,10 @@ if st.button("Generate Song Lyrics"):
     lyrics = generate_song_lyrics(song_theme)
     st.markdown(lyrics)
     export_text_to_file(lyrics, "md")
-    audio_data = text_to_speech(lyrics)
-    st.audio(audio_data, format='audio/wav')
-    st.download_button(label="Download Podcast", data=audio_data, file_name="song_lyrics.wav", mime="audio/wav")
+    if st.button("Generate Podcast for Song Lyrics"):
+        audio_data = text_to_speech(lyrics)
+        st.audio(audio_data, format='audio/wav')
+        st.download_button(label="Download Podcast", data=audio_data, file_name="song_lyrics.wav", mime="audio/wav")
 
 st.subheader("Generate Business Plan")
 business_idea = st.text_input("Enter your business idea:")
@@ -376,9 +389,10 @@ if st.button("Generate Business Plan"):
     business_plan = generate_business_plan(business_idea)
     st.markdown(business_plan)
     export_text_to_file(business_plan, "md")
-    audio_data = text_to_speech(business_plan)
-    st.audio(audio_data, format='audio/wav')
-    st.download_button(label="Download Podcast", data=audio_data, file_name="business_plan.wav", mime="audio/wav")
+    if st.button("Generate Podcast for Business Plan"):
+        audio_data = text_to_speech(business_plan)
+        st.audio(audio_data, format='audio/wav')
+        st.download_button(label="Download Podcast", data=audio_data, file_name="business_plan.wav", mime="audio/wav")
 
 st.subheader("Generate Book Summary")
 book_title = st.text_input("Enter the book title:")
@@ -387,9 +401,10 @@ if st.button("Generate Book Summary"):
     book_summary = generate_book_summary(book_title, book_author)
     st.markdown(book_summary)
     export_text_to_file(book_summary, "md")
-    audio_data = text_to_speech(book_summary)
-    st.audio(audio_data, format='audio/wav')
-    st.download_button(label="Download Podcast", data=audio_data, file_name="book_summary.wav", mime="audio/wav")
+    if st.button("Generate Podcast for Book Summary"):
+        audio_data = text_to_speech(book_summary)
+        st.audio(audio_data, format='audio/wav')
+        st.download_button(label="Download Podcast", data=audio_data, file_name="book_summary.wav", mime="audio/wav")
 
 st.subheader("Generate Marketing Strategy")
 business_goals = st.text_input("Enter your business goals:")
@@ -397,6 +412,7 @@ if st.button("Generate Marketing Strategy"):
     marketing_strategy = generate_marketing_strategy(business_goals)
     st.markdown(marketing_strategy)
     export_text_to_file(marketing_strategy, "md")
-    audio_data = text_to_speech(marketing_strategy)
-    st.audio(audio_data, format='audio/wav')
-    st.download_button(label="Download Podcast", data=audio_data, file_name="marketing_strategy.wav", mime="audio/wav")
+    if st.button("Generate Podcast for Marketing Strategy"):
+        audio_data = text_to_speech(marketing_strategy)
+        st.audio(audio_data, format='audio/wav')
+        st.download_button(label="Download Podcast", data=audio_data, file_name="marketing_strategy.wav", mime="audio/wav")

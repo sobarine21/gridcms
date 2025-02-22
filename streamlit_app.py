@@ -1,3 +1,4 @@
+from huggingface_hub import InferenceClient
 import streamlit as st
 import google.generativeai as genai
 import requests
@@ -6,7 +7,15 @@ import random
 import uuid
 import json
 import pandas as pd
-import urllib.parse
+import os
+import pyttsx3
+from io import BytesIO
+
+# Configure Hugging Face Inference Client
+hf_client = InferenceClient(
+    provider="hyperbolic",
+    api_key="hf_xxxxxxxxxxxxxxxxxxxxxxxx"
+)
 
 # ---- Hide Streamlit Default Menu ----
 st.markdown("""
@@ -56,14 +65,21 @@ def check_session_limit():
         st.warning("Session limit reached. Please wait 15 minutes or upgrade to Pro.")
         st.stop()
 
-def generate_content(prompt):
-    """Generates content using Generative AI."""
+def generate_content(prompt, model="deepseek-ai/DeepSeek-R1"):
+    """Generates content using the specified model."""
     try:
-        model, api_key = get_next_model_and_key()
-        genai.configure(api_key=api_key)
-        generative_model = genai.GenerativeModel(model)
-        response = generative_model.generate_content(prompt)
-        return response.text.strip() if response and response.text else "No valid response generated."
+        messages = [
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ]
+        completion = hf_client.chat.completions.create(
+            model=model,
+            messages=messages,
+            max_tokens=500,
+        )
+        return completion.choices[0].message.content.strip() if completion and completion.choices else "No valid response generated."
     except Exception as e:
         return f"Error generating content: {str(e)}"
 
@@ -120,6 +136,14 @@ def export_text_to_file(text, file_format):
     elif file_format == "md":
         st.download_button(label="Download as Markdown", data=text, file_name="generated_text.md", mime="text/markdown")
 
+def text_to_speech(text):
+    """Converts text to speech and returns the audio data."""
+    engine = pyttsx3.init()
+    audio_data = BytesIO()
+    engine.save_to_file(text, audio_data)
+    audio_data.seek(0)
+    return audio_data
+
 # ---- New Feature Functions ----
 
 def generate_poem(theme):
@@ -130,60 +154,20 @@ def generate_code_snippet(description):
     prompt = f"Generate a code snippet for {description}"
     return generate_content(prompt)
 
-def generate_recipe(ingredients):
-    prompt = f"Create a recipe using the following ingredients: {ingredients}"
-    return generate_content(prompt)
-
 def generate_song_lyrics(theme):
     prompt = f"Write song lyrics about {theme}"
-    return generate_content(prompt)
-
-def generate_workout_plan(fitness_goal):
-    prompt = f"Create a workout plan to achieve the following fitness goal: {fitness_goal}"
-    return generate_content(prompt)
-
-def generate_travel_itinerary(destination):
-    prompt = f"Create a travel itinerary for a trip to {destination}"
     return generate_content(prompt)
 
 def generate_business_plan(business_idea):
     prompt = f"Create a business plan for the following idea: {business_idea}"
     return generate_content(prompt)
 
-def generate_study_schedule(subjects, time):
-    prompt = f"Create a study schedule for the following subjects: {subjects} and available time: {time}"
-    return generate_content(prompt)
-
 def generate_book_summary(title, author):
     prompt = f"Summarize the book titled '{title}' by {author}"
     return generate_content(prompt)
 
-def generate_meditation_guide(preferences):
-    prompt = f"Create a meditation guide based on the following preferences: {preferences}"
-    return generate_content(prompt)
-
 def generate_marketing_strategy(business_goals):
     prompt = f"Create a marketing strategy to achieve the following business goals: {business_goals}"
-    return generate_content(prompt)
-
-def generate_investment_plan(financial_goals):
-    prompt = f"Create an investment plan to achieve the following financial goals: {financial_goals}"
-    return generate_content(prompt)
-
-def generate_meal_plan(dietary_preferences):
-    prompt = f"Create a meal plan based on the following dietary preferences: {dietary_preferences}"
-    return generate_content(prompt)
-
-def generate_job_description(role):
-    prompt = f"Create a job description for the following role: {role}"
-    return generate_content(prompt)
-
-def generate_interview_questions(job_role):
-    prompt = f"Create a list of interview questions for the following job role: {job_role}"
-    return generate_content(prompt)
-
-def generate_fashion_advice(trends):
-    prompt = f"Provide fashion advice based on the following trends: {trends}"
     return generate_content(prompt)
 
 def generate_home_decor_ideas(theme):
@@ -270,10 +254,6 @@ def generate_language_learning_plan(target_language):
     prompt = f"Create a language learning plan for the following target language: {target_language}"
     return generate_content(prompt)
 
-def generate_mindfulness_exercises(preferences):
-    prompt = f"Provide mindfulness exercises based on the following preferences: {preferences}"
-    return generate_content(prompt)
-
 def generate_stress_management_tips(user_input):
     prompt = f"Suggest stress management tips based on the following input: {user_input}"
     return generate_content(prompt)
@@ -353,6 +333,10 @@ if st.button("Generate Response"):
         st.subheader("Export Generated Content:")
         for format in ["txt", "csv", "json", "md"]:
             export_text_to_file(generated_text, format)
+        st.subheader("Download as Podcast:")
+        audio_data = text_to_speech(generated_text)
+        st.audio(audio_data, format='audio/wav')
+        st.download_button(label="Download Podcast", data=audio_data, file_name="generated_content.wav", mime="audio/wav")
 
 # Regenerate Content Button
 if st.session_state.get('generated_text'):
@@ -363,6 +347,10 @@ if st.session_state.get('generated_text'):
         st.subheader("Export Regenerated Content:")
         for format in ["txt", "csv", "json", "md"]:
             export_text_to_file(regenerated_text, format)
+        st.subheader("Download as Podcast:")
+        audio_data = text_to_speech(regenerated_text)
+        st.audio(audio_data, format='audio/wav')
+        st.download_button(label="Download Podcast", data=audio_data, file_name="regenerated_content.wav", mime="audio/wav")
 
 # ---- New Feature Sections ----
 
@@ -372,6 +360,9 @@ if st.button("Generate Poem"):
     poem = generate_poem(poem_theme)
     st.markdown(poem)
     export_text_to_file(poem, "md")
+    audio_data = text_to_speech(poem)
+    st.audio(audio_data, format='audio/wav')
+    st.download_button(label="Download Podcast", data=audio_data, file_name="poem.wav", mime="audio/wav")
 
 st.subheader("Generate Code Snippet")
 code_description = st.text_input("Enter a description for the code snippet:")
@@ -379,13 +370,9 @@ if st.button("Generate Code Snippet"):
     code_snippet = generate_code_snippet(code_description)
     st.markdown(f"```python\n{code_snippet}\n```")
     export_text_to_file(code_snippet, "md")
-
-st.subheader("Generate Recipe")
-ingredients = st.text_input("Enter ingredients for the recipe:")
-if st.button("Generate Recipe"):
-    recipe = generate_recipe(ingredients)
-    st.markdown(recipe)
-    export_text_to_file(recipe, "md")
+    audio_data = text_to_speech(code_snippet)
+    st.audio(audio_data, format='audio/wav')
+    st.download_button(label="Download Podcast", data=audio_data, file_name="code_snippet.wav", mime="audio/wav")
 
 st.subheader("Generate Song Lyrics")
 song_theme = st.text_input("Enter a theme for the song lyrics:")
@@ -393,20 +380,9 @@ if st.button("Generate Song Lyrics"):
     lyrics = generate_song_lyrics(song_theme)
     st.markdown(lyrics)
     export_text_to_file(lyrics, "md")
-
-st.subheader("Generate Workout Plan")
-fitness_goal = st.text_input("Enter your fitness goal:")
-if st.button("Generate Workout Plan"):
-    workout_plan = generate_workout_plan(fitness_goal)
-    st.markdown(workout_plan)
-    export_text_to_file(workout_plan, "md")
-
-st.subheader("Generate Travel Itinerary")
-destination = st.text_input("Enter your travel destination:")
-if st.button("Generate Travel Itinerary"):
-    itinerary = generate_travel_itinerary(destination)
-    st.markdown(itinerary)
-    export_text_to_file(itinerary, "md")
+    audio_data = text_to_speech(lyrics)
+    st.audio(audio_data, format='audio/wav')
+    st.download_button(label="Download Podcast", data=audio_data, file_name="song_lyrics.wav", mime="audio/wav")
 
 st.subheader("Generate Business Plan")
 business_idea = st.text_input("Enter your business idea:")
@@ -414,14 +390,9 @@ if st.button("Generate Business Plan"):
     business_plan = generate_business_plan(business_idea)
     st.markdown(business_plan)
     export_text_to_file(business_plan, "md")
-
-st.subheader("Generate Study Schedule")
-subjects = st.text_input("Enter the subjects to study:")
-time = st.text_input("Enter the available study time:")
-if st.button("Generate Study Schedule"):
-    study_schedule = generate_study_schedule(subjects, time)
-    st.markdown(study_schedule)
-    export_text_to_file(study_schedule, "md")
+    audio_data = text_to_speech(business_plan)
+    st.audio(audio_data, format='audio/wav')
+    st.download_button(label="Download Podcast", data=audio_data, file_name="business_plan.wav", mime="audio/wav")
 
 st.subheader("Generate Book Summary")
 book_title = st.text_input("Enter the book title:")
@@ -430,13 +401,9 @@ if st.button("Generate Book Summary"):
     book_summary = generate_book_summary(book_title, book_author)
     st.markdown(book_summary)
     export_text_to_file(book_summary, "md")
-
-st.subheader("Generate Meditation Guide")
-preferences = st.text_input("Enter your meditation preferences:")
-if st.button("Generate Meditation Guide"):
-    meditation_guide = generate_meditation_guide(preferences)
-    st.markdown(meditation_guide)
-    export_text_to_file(meditation_guide, "md")
+    audio_data = text_to_speech(book_summary)
+    st.audio(audio_data, format='audio/wav')
+    st.download_button(label="Download Podcast", data=audio_data, file_name="book_summary.wav", mime="audio/wav")
 
 st.subheader("Generate Marketing Strategy")
 business_goals = st.text_input("Enter your business goals:")
@@ -444,29 +411,6 @@ if st.button("Generate Marketing Strategy"):
     marketing_strategy = generate_marketing_strategy(business_goals)
     st.markdown(marketing_strategy)
     export_text_to_file(marketing_strategy, "md")
-
-st.subheader("Generate Investment Plan")
-financial_goals = st.text_input("Enter your financial goals:")
-if st.button("Generate Investment Plan"):
-    investment_plan = generate_investment_plan(financial_goals)
-    st.markdown(investment_plan)
-    export_text_to_file(investment_plan, "md")
-
-st.subheader("Generate Meal Plan")
-dietary_preferences = st.text_input("Enter your dietary preferences:")
-if st.button("Generate Meal Plan"):
-    meal_plan = generate_meal_plan(dietary_preferences)
-    st.markdown(meal_plan)
-    export_text_to_file(meal_plan, "md")
-
-st.subheader("Generate Job Description")
-job_role = st.text_input("Enter the job role:")
-if st.button("Generate Job Description"):
-    job_description = generate_job_description(job_role)
-    st.markdown(job_description)
-    export_text_to_file(job_description, "md")
-
-st.subheader("Generate Interview Questions")
-job_role = st.text_input("Enter the job role for interview questions:")
-if st.button("Generate Interview Questions"):
-    interview_questions = generate_interview_questions
+    audio_data = text_to_speech(marketing_strategy)
+    st.audio(audio_data, format='audio/wav')
+    st.download_button(label="Download Podcast", data=audio_data, file_name="marketing_strategy.wav", mime="audio/wav")

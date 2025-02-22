@@ -2,4 +2,4 @@ streamlit
 google-generativeai 
 requests 
 pandas
-auth0-python
+pyttsx3

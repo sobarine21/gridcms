@@ -7,7 +7,7 @@ import uuid
 import json
 import pandas as pd
 import os
-import pyttsx3
+from gtts import gTTS
 from io import BytesIO
 
 # ---- Hide Streamlit Default Menu ----
@@ -123,10 +123,10 @@ def export_text_to_file(text, file_format):
         st.download_button(label="Download as Markdown", data=text, file_name="generated_text.md", mime="text/markdown")
 
 def text_to_speech(text):
-    """Converts text to speech and returns the audio data."""
-    engine = pyttsx3.init()
+    """Converts text to speech using gTTS and returns the audio data."""
+    tts = gTTS(text=text, lang='en')
     audio_data = BytesIO()
-    engine.save_to_file(text, audio_data)
+    tts.write_to_fp(audio_data)
     audio_data.seek(0)
     return audio_data
 

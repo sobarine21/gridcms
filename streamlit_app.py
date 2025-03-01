@@ -171,7 +171,7 @@ async def main():
                     st.warning(search_results)
                 elif search_results.get('items'):
                     st.warning("Similar content found on the web:")
-                    for result in search_results['items'][:5]:  # Show top 5 results
+                    for result in search_results['items'][:10]:  # Show top 5 results
                         with st.expander(result.get('title', 'No Title')):
                             st.write(f"**Source:** [{result.get('link', 'Unknown')}]({result.get('link', '#')})")
                             st.write(f"**Snippet:** {result.get('snippet', 'No snippet available.')}")

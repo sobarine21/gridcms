@@ -9,7 +9,7 @@ import json
 import asyncio
 import aiohttp
 from fpdf import FPDF
-from docx import Document
+from docxtpl import DocxTemplate
 import io
 
 # ---- Helper Functions ----
@@ -152,7 +152,7 @@ def download_pdf(content):
 
 def download_docx(content):
     """Creates a downloadable .docx file."""
-    doc = Document()
+    doc = DocxTemplate()
     doc.add_paragraph(content)
 
     docx_output = io.BytesIO()

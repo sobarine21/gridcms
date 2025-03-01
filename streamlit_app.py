@@ -150,15 +150,15 @@ async def main():
         if not prompt.strip():
             st.warning("Please enter a valid prompt.")
         else:
-            # Show the countdown timer after button click
-            countdown_time = 5
-            for i in range(countdown_time, 0, -1):
-                st.write(f"Generating response in {i} seconds...")  # Update countdown message
-                time.sleep(1)  # Simulate countdown delay
+            # Show spinner and countdown before AI request
+            with st.spinner("Please wait, generating response..."):
+                countdown_time = 5
+                for i in range(countdown_time, 0, -1):
+                    st.write(f"Generating response in {i} seconds...")  # Update countdown message
+                    time.sleep(1)  # Simulate countdown delay
 
-            # After countdown, make the AI request
-            async with aiohttp.ClientSession() as session:
-                generated_text = await generate_content_async(prompt, session)
+                # After countdown, make the AI request
+                generated_text = await generate_content_async(prompt, None)
 
                 # Increment session count
                 st.session_state.session_count += 1
@@ -170,7 +170,7 @@ async def main():
 
                 # Check for similar content online asynchronously
                 st.subheader("Searching for Similar Content Online:")
-                search_results = await search_web_async(generated_text, session)
+                search_results = await search_web_async(generated_text, None)
 
                 # Display search results
                 if isinstance(search_results, str):

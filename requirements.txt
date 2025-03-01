@@ -4,3 +4,5 @@ requests
 pandas
 gtts 
 aiohttp
+fpdf
+docx

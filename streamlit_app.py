@@ -144,35 +144,20 @@ prompt = st.text_area("Enter your prompt:", placeholder="Write a blog about AI t
 # Session management to check for block time and session limits
 check_session_limit()
 
-# JavaScript for Timer Animation
-countdown_time = 5
-countdown_js = f"""
-    <script>
-        let countdown = {countdown_time};
-        function updateTimer() {{
-            if (countdown > 0) {{
-                countdown -= 1;
-                document.getElementById("timer").innerText = countdown + " seconds";
-            }} else {{
-                clearInterval(timerInterval);
-            }}
-        }}
-        let timerInterval = setInterval(updateTimer, 1000);
-    </script>
-    <div style="font-size:20px; margin-top: 20px;">
-        <p><b>Time remaining:</b> <span id="timer">{countdown_time} seconds</span></p>
-    </div>
-"""
-st.markdown(countdown_js, unsafe_allow_html=True)
-
 # Asyncio Event Loop for Concurrency
 async def main():
     if st.button("Generate Response"):
         if not prompt.strip():
             st.warning("Please enter a valid prompt.")
         else:
+            # Show the countdown timer after button click
+            countdown_time = 5
+            for i in range(countdown_time, 0, -1):
+                st.write(f"Generating response in {i} seconds...")  # Update countdown message
+                time.sleep(1)  # Simulate countdown delay
+
+            # After countdown, make the AI request
             async with aiohttp.ClientSession() as session:
-                # Generate content using Generative AI asynchronously
                 generated_text = await generate_content_async(prompt, session)
 
                 # Increment session count

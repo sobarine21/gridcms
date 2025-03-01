@@ -94,7 +94,7 @@ def check_session_limit():
         st.markdown(
             """
             ### Interested in upgrading to Pro?
-            You can unlock unlimited sessions and more powerful models by upgrading to the Pro version. 
+            Get life time access in just Rs999! unlock unlimited sessions and more powerful models by upgrading to the Pro version. 
             Please visit the [Pro model onboarding page](https://docs.google.com/forms/d/e/1FAIpQLScktS-G8d2s6xaOcHEwJ9Bqo6r14Xn3FONKgqaDOBaLGxUBzg/viewform?embedded=true) to get started.
             """
         )

@@ -6,4 +6,4 @@ gtts
 aiohttp
 fpdf
 docx
-exceptions
+

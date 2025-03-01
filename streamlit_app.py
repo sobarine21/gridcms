@@ -71,7 +71,7 @@ def check_session_limit():
     if st.session_state.block_time:
         time_left = st.session_state.block_time - time.time()
         if time_left > 0:
-            st.warning(f"Session limit reached. Try again in {int(time_left)} seconds.")
+            st.warning(f"Session limit reached. Try again in {int(time_left)} seconds or upgrade to pro, https://evertechcms.in/gridai")
             st.stop()
         else:
             st.session_state.block_time = None

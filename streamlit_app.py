@@ -1,14 +1,10 @@
 import streamlit as st
 import google.generativeai as genai
-import requests
 import time
-import os
 import random
 import uuid
-import json
 import asyncio
 import aiohttp
-from io import StringIO
 
 # ---- Helper Functions ----
 
@@ -161,35 +157,36 @@ async def main():
                     time.sleep(1)  # Simulate countdown delay
 
                 # After countdown, make the AI request
-                generated_text = await generate_content_async(prompt, None)
+                async with aiohttp.ClientSession() as session:
+                    generated_text = await generate_content_async(prompt, session)
 
-                # Increment session count
-                st.session_state.session_count += 1
-                st.session_state.generated_text = generated_text  # Store for potential regeneration
+                    # Increment session count
+                    st.session_state.session_count += 1
+                    st.session_state.generated_text = generated_text  # Store for potential regeneration
 
-                # Display the generated content safely
-                st.subheader("Generated Content:")
-                st.markdown(generated_text)
+                    # Display the generated content safely
+                    st.subheader("Generated Content:")
+                    st.markdown(generated_text)
 
-                # Check for similar content online asynchronously
-                st.subheader("Searching for Similar Content Online:")
-                search_results = await search_web_async(generated_text, None)
+                    # Check for similar content online asynchronously
+                    st.subheader("Searching for Similar Content Online:")
+                    search_results = await search_web_async(generated_text, session)
 
-                # Validate search results before accessing
-                if search_results is None:
-                    st.warning("Error or no results from the web search.")
-                elif isinstance(search_results, dict) and 'items' in search_results and search_results['items']:
-                    st.warning("Similar content found on the web:")
-                    for result in search_results['items'][:10]:  # Show top 5 results
-                        with st.expander(result.get('title', 'No Title')):
-                            st.write(f"**Source:** [{result.get('link', 'Unknown')}]({result.get('link', '#')})")
-                            st.write(f"**Snippet:** {result.get('snippet', 'No snippet available.')}")
-                            st.write("---")
-                else:
-                    st.success("No similar content found online. Your content seems original!")
+                    # Validate search results before accessing
+                    if search_results is None:
+                        st.warning("Error or no results from the web search.")
+                    elif isinstance(search_results, dict) and 'items' in search_results and search_results['items']:
+                        st.warning("Similar content found on the web:")
+                        for result in search_results['items'][:10]:  # Show top 5 results
+                            with st.expander(result.get('title', 'No Title')):
+                                st.write(f"**Source:** [{result.get('link', 'Unknown')}]({result.get('link', '#')})")
+                                st.write(f"**Snippet:** {result.get('snippet', 'No snippet available.')}")
+                                st.write("---")
+                    else:
+                        st.success("No similar content found online. Your content seems original!")
 
-                # Allow download of the generated content
-                download_file(generated_text)
+                    # Allow download of the generated content
+                    download_file(generated_text)
 
     if st.session_state.get('generated_text'):
         if st.button("Regenerate Content"):

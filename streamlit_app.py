@@ -8,6 +8,7 @@ import uuid
 import json
 import asyncio
 import aiohttp
+from io import StringIO
 
 # ---- Helper Functions ----
 
@@ -79,9 +80,10 @@ def check_session_limit():
         else:
             st.session_state.block_time = None
 
-    if st.session_state.session_count >= 5:
+    if st.session_state.session_count >= 2:
         st.session_state.block_time = time.time() + 15 * 60  # Block for 15 minutes
         st.warning("Session limit reached. Please wait 15 minutes or upgrade to Pro.")
+        st.markdown("<iframe src='https://docs.google.com/forms/d/e/1FAIpQLSeEPL4UOtXbgx1YXLM1I_2u_I7n7hWgPWDn6-Tw9yE3tW7syQ/viewform?embedded=true' width='640' height='1140' frameborder='0' marginheight='0' marginwidth='0'>Loading…</iframe>", unsafe_allow_html=True)
         st.stop()
 
 def regenerate_content(original_content):
@@ -101,6 +103,17 @@ def regenerate_content(original_content):
 
     except Exception as e:
         return f"Error regenerating content: {str(e)}"
+
+def download_file(content):
+    """Provides the option to download generated content as a text file."""
+    buffer = StringIO(content)
+    buffer.seek(0)
+    st.download_button(
+        label="Download as Text File",
+        data=buffer,
+        file_name="generated_content.txt",
+        mime="text/plain"
+    )
 
 # ---- Main Streamlit App ----
 
@@ -152,11 +165,15 @@ async def main():
                 else:
                     st.success("No similar content found online. Your content seems original!")
 
+                # Allow download of the generated content
+                download_file(generated_text)
+
     if st.session_state.get('generated_text'):
         if st.button("Regenerate Content"):
             regenerated_text = regenerate_content(st.session_state.generated_text)
             st.subheader("Regenerated Content:")
             st.markdown(regenerated_text)
+            download_file(regenerated_text)
 
 # Run the async main function
 asyncio.run(main())

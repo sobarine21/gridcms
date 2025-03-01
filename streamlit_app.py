@@ -79,7 +79,7 @@ def check_session_limit():
     if st.session_state.session_count >= 2:
         st.session_state.block_time = time.time() + 15 * 60  # Block for 15 minutes
         st.warning("Session limit reached. Please wait 15 minutes or upgrade to Pro.")
-        st.markdown("You can upgrade to the Pro model by filling out the form [here](https://forms.gle/TJWH9HJ4kqUTN7Hp9).", unsafe_allow_html=True)
+        st.markdown("You can upgrade to the Pro model & Get lifetime access at just Rs999 [here](https://forms.gle/TJWH9HJ4kqUTN7Hp9).", unsafe_allow_html=True)
         st.stop()
 
 def regenerate_content(original_content):

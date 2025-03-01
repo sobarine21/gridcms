@@ -8,6 +8,9 @@ import uuid
 import json
 import asyncio
 import aiohttp
+from fpdf import FPDF
+from docx import Document
+import io
 
 # ---- Helper Functions ----
 
@@ -118,6 +121,51 @@ def regenerate_content(original_content):
     except Exception as e:
         return f"Error regenerating content: {str(e)}"
 
+# ---- File Download Functions ----
+
+def download_txt(content):
+    """Creates a downloadable .txt file."""
+    st.download_button(
+        label="Download as .txt",
+        data=content,
+        file_name="generated_content.txt",
+        mime="text/plain"
+    )
+
+def download_pdf(content):
+    """Creates a downloadable .pdf file."""
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+    pdf.multi_cell(0, 10, content)
+    
+    pdf_output = io.BytesIO()
+    pdf.output(pdf_output)
+    pdf_output.seek(0)
+
+    st.download_button(
+        label="Download as .pdf",
+        data=pdf_output,
+        file_name="generated_content.pdf",
+        mime="application/pdf"
+    )
+
+def download_docx(content):
+    """Creates a downloadable .docx file."""
+    doc = Document()
+    doc.add_paragraph(content)
+
+    docx_output = io.BytesIO()
+    doc.save(docx_output)
+    docx_output.seek(0)
+
+    st.download_button(
+        label="Download as .docx",
+        data=docx_output,
+        file_name="generated_content.docx",
+        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    )
+
 # ---- Main Streamlit App ----
 
 # Initialize session tracking
@@ -162,6 +210,11 @@ async def main():
                 # Display the generated content safely
                 st.subheader("Generated Content:")
                 st.markdown(generated_text)
+
+                # Provide download options
+                download_txt(generated_text)
+                download_pdf(generated_text)
+                download_docx(generated_text)
 
                 # Check for similar content online asynchronously
                 st.subheader("Searching for Similar Content Online:")

@@ -5,5 +5,3 @@ pandas
 gtts 
 aiohttp
 fpdf
-python-docx
-docxtpl

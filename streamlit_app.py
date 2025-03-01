@@ -11,6 +11,7 @@ import aiohttp
 from fpdf import FPDF
 from docxtpl import DocxTemplate
 import io
+import tempfile
 
 # ---- Helper Functions ----
 
@@ -155,16 +156,17 @@ def download_docx(content):
     doc = DocxTemplate()
     doc.add_paragraph(content)
 
-    docx_output = io.BytesIO()
-    doc.save(docx_output)
-    docx_output.seek(0)
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".docx") as tmpfile:
+        tmp_path = tmpfile.name
+        doc.save(tmp_path)
 
-    st.download_button(
-        label="Download as .docx",
-        data=docx_output,
-        file_name="generated_content.docx",
-        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-    )
+    with open(tmp_path, "rb") as f:
+        st.download_button(
+            label="Download as .docx",
+            data=f,
+            file_name="generated_content.docx",
+            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        )
 
 # ---- Main Streamlit App ----
 

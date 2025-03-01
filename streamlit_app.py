@@ -9,9 +9,7 @@ import json
 import asyncio
 import aiohttp
 from fpdf import FPDF
-from docxtpl import DocxTemplate
 import io
-import tempfile
 
 # ---- Helper Functions ----
 
@@ -151,23 +149,6 @@ def download_pdf(content):
         mime="application/pdf"
     )
 
-def download_docx(content):
-    """Creates a downloadable .docx file."""
-    doc = DocxTemplate()
-    doc.add_paragraph(content)
-
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".docx") as tmpfile:
-        tmp_path = tmpfile.name
-        doc.save(tmp_path)
-
-    with open(tmp_path, "rb") as f:
-        st.download_button(
-            label="Download as .docx",
-            data=f,
-            file_name="generated_content.docx",
-            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-        )
-
 # ---- Main Streamlit App ----
 
 # Initialize session tracking
@@ -216,7 +197,6 @@ async def main():
                 # Provide download options
                 download_txt(generated_text)
                 download_pdf(generated_text)
-                download_docx(generated_text)
 
                 # Check for similar content online asynchronously
                 st.subheader("Searching for Similar Content Online:")

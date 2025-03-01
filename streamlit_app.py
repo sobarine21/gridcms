@@ -1,13 +1,11 @@
 import streamlit as st
 import google.generativeai as genai
-import requests
-import time
-import os
 import random
 import uuid
-import json
+import time
 import asyncio
 import aiohttp
+import requests
 from io import StringIO
 
 # ---- Helper Functions ----
@@ -39,25 +37,21 @@ async def generate_content_async(prompt, session):
     except Exception as e:
         return f"Error generating content: {str(e)}"
 
-async def search_web_async(query, session):
-    """Asynchronously searches the web using Google Custom Search API."""
-    api_key = st.secrets["GOOGLE_API_KEY"]
-    search_engine_id = st.secrets["GOOGLE_SEARCH_ENGINE_ID"]
-
-    if not api_key or not search_engine_id:
-        return "Google API Key or Search Engine ID is missing."
-
-    search_url = "https://www.googleapis.com/customsearch/v1"
-    params = {"key": api_key, "cx": search_engine_id, "q": query}
-
-    try:
-        async with session.get(search_url, params=params) as response:
-            if response.status == 200:
-                return await response.json()  # Properly get the response JSON
-            else:
-                return f"Search API Error: {response.status} - {await response.text()}"
-    except requests.exceptions.RequestException as e:
-        return f"Request failed: {str(e)}"
+def check_recaptcha(recaptcha_response):
+    """Check reCAPTCHA with the response token."""
+    secret_key = st.secrets["RECAPTCHA_SECRET_KEY"]
+    url = "https://www.google.com/recaptcha/api/siteverify"
+    payload = {
+        'secret': secret_key,
+        'response': recaptcha_response
+    }
+    
+    # Make the request to Google reCAPTCHA API
+    response = requests.post(url, data=payload)
+    result = response.json()
+    
+    # If the success key is True, the CAPTCHA was solved correctly
+    return result.get('success', False)
 
 def initialize_session():
     """Initializes session variables securely."""
@@ -126,8 +120,17 @@ initialize_session()
 st.title("AI-Powered Ghostwriter")
 st.write("Generate high-quality content and check for originality using Generative AI and Google Search.")
 
+# Add reCAPTCHA widget
+st.markdown("""
+    <div class="g-recaptcha" data-sitekey="YOUR_RECAPTCHA_SITE_KEY"></div>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+""", unsafe_allow_html=True)
+
 # Prompt Input Field
 prompt = st.text_area("Enter your prompt:", placeholder="Write a blog about AI trends in 2025.")
+
+# Handle reCAPTCHA response and check validity
+recaptcha_response = st.text_input("reCAPTCHA Response Token", type="password")
 
 # Session management to check for block time and session limits
 check_session_limit()
@@ -137,38 +140,44 @@ async def main():
     if st.button("Generate Response"):
         if not prompt.strip():
             st.warning("Please enter a valid prompt.")
+        elif not recaptcha_response:
+            st.warning("Please complete the reCAPTCHA verification.")
         else:
-            async with aiohttp.ClientSession() as session:
-                # Generate content using Generative AI asynchronously
-                generated_text = await generate_content_async(prompt, session)
+            # Verify reCAPTCHA
+            if check_recaptcha(recaptcha_response):
+                async with aiohttp.ClientSession() as session:
+                    # Generate content using Generative AI asynchronously
+                    generated_text = await generate_content_async(prompt, session)
 
-                # Increment session count
-                st.session_state.session_count += 1
-                st.session_state.generated_text = generated_text  # Store for potential regeneration
+                    # Increment session count
+                    st.session_state.session_count += 1
+                    st.session_state.generated_text = generated_text  # Store for potential regeneration
 
-                # Display the generated content safely
-                st.subheader("Generated Content:")
-                st.markdown(generated_text)
+                    # Display the generated content safely
+                    st.subheader("Generated Content:")
+                    st.markdown(generated_text)
 
-                # Check for similar content online asynchronously
-                st.subheader("Searching for Similar Content Online:")
-                search_results = await search_web_async(generated_text, session)
+                    # Check for similar content online asynchronously
+                    st.subheader("Searching for Similar Content Online:")
+                    search_results = await search_web_async(generated_text, session)
 
-                # Display search results
-                if isinstance(search_results, str):
-                    st.warning(search_results)
-                elif search_results.get('items'):
-                    st.warning("Similar content found on the web:")
-                    for result in search_results['items'][:5]:  # Show top 5 results
-                        with st.expander(result.get('title', 'No Title')):
-                            st.write(f"**Source:** [{result.get('link', 'Unknown')}]({result.get('link', '#')})")
-                            st.write(f"**Snippet:** {result.get('snippet', 'No snippet available.')}")
-                            st.write("---")
-                else:
-                    st.success("No similar content found online. Your content seems original!")
+                    # Display search results
+                    if isinstance(search_results, str):
+                        st.warning(search_results)
+                    elif search_results.get('items'):
+                        st.warning("Similar content found on the web:")
+                        for result in search_results['items'][:10]:  # Show top 5 results
+                            with st.expander(result.get('title', 'No Title')):
+                                st.write(f"**Source:** [{result.get('link', 'Unknown')}]({result.get('link', '#')})")
+                                st.write(f"**Snippet:** {result.get('snippet', 'No snippet available.')}")
+                                st.write("---")
+                    else:
+                        st.success("No similar content found online. Your content seems original!")
 
-                # Allow download of the generated content
-                download_file(generated_text)
+                    # Allow download of the generated content
+                    download_file(generated_text)
+            else:
+                st.warning("reCAPTCHA verification failed. Please try again.")
 
     if st.session_state.get('generated_text'):
         if st.button("Regenerate Content"):

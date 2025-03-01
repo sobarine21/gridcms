@@ -79,7 +79,7 @@ def check_session_limit():
     if st.session_state.session_count >= 2:
         st.session_state.block_time = time.time() + 15 * 60  # Block for 15 minutes
         st.warning("Session limit reached. Please wait 15 minutes or upgrade to Pro.")
-        st.markdown("You can upgrade to the Pro model & Get lifetime access at just Rs999 [here](https://forms.gle/TJWH9HJ4kqUTN7Hp9).", unsafe_allow_html=True)
+        st.markdown("You can upgrade to the Pro model & Get lifetime access at just Rs 999 [here](https://forms.gle/TJWH9HJ4kqUTN7Hp9).", unsafe_allow_html=True)
         st.stop()
 
 def regenerate_content(original_content):
@@ -120,7 +120,7 @@ initialize_session()
 
 # App Title and Description
 st.title("AI-Powered Ghostwriter")
-st.write("Generate high-quality content and check for originality using Generative AI and Google Search, you can get lifetime access to Grid Pro at Rs999, visit https://evertechcms.in/gridai")
+st.write("Generate high-quality content and check for originality using Generative AI and Google Search, you can get lifetime access to Grid Pro at Rs 999, visit https://evertechcms.in/gridai")
 
 # Add custom CSS to hide the header and the top-right buttons
 hide_streamlit_style = """

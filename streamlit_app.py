@@ -144,6 +144,27 @@ prompt = st.text_area("Enter your prompt:", placeholder="Write a blog about AI t
 # Session management to check for block time and session limits
 check_session_limit()
 
+# JavaScript for Timer Animation
+countdown_time = 5
+countdown_js = f"""
+    <script>
+        let countdown = {countdown_time};
+        function updateTimer() {{
+            if (countdown > 0) {{
+                countdown -= 1;
+                document.getElementById("timer").innerText = countdown + " seconds";
+            }} else {{
+                clearInterval(timerInterval);
+            }}
+        }}
+        let timerInterval = setInterval(updateTimer, 1000);
+    </script>
+    <div style="font-size:20px; margin-top: 20px;">
+        <p><b>Time remaining:</b> <span id="timer">{countdown_time} seconds</span></p>
+    </div>
+"""
+st.markdown(countdown_js, unsafe_allow_html=True)
+
 # Asyncio Event Loop for Concurrency
 async def main():
     if st.button("Generate Response"):

@@ -8,8 +8,6 @@ import uuid
 import json
 import asyncio
 import aiohttp
-from fpdf import FPDF
-import io
 
 # ---- Helper Functions ----
 
@@ -77,14 +75,6 @@ def check_session_limit():
         time_left = st.session_state.block_time - time.time()
         if time_left > 0:
             st.warning(f"Session limit reached. Try again in {int(time_left)} seconds.")
-            # Show the Pro model onboarding link here
-            st.markdown(
-                """
-                ### Interested in upgrading to Pro?
-                You can unlock unlimited sessions and more powerful models by upgrading to the Pro version. 
-                Please visit the [Pro model onboarding page](https://docs.google.com/forms/d/e/1FAIpQLScktS-G8d2s6xaOcHEwJ9Bqo6r14Xn3FONKgqaDOBaLGxUBzg/viewform?embedded=true) to get started.
-                """
-            )
             st.stop()
         else:
             st.session_state.block_time = None
@@ -92,14 +82,6 @@ def check_session_limit():
     if st.session_state.session_count >= 5:
         st.session_state.block_time = time.time() + 15 * 60  # Block for 15 minutes
         st.warning("Session limit reached. Please wait 15 minutes or upgrade to Pro.")
-        # Show the Pro model onboarding link here
-        st.markdown(
-            """
-            ### Interested in upgrading to Pro?
-            Get life time access in just Rs999! unlock unlimited sessions and more powerful models by upgrading to the Pro version. 
-            Please visit the [Pro model onboarding page](https://docs.google.com/forms/d/e/1FAIpQLScktS-G8d2s6xaOcHEwJ9Bqo6r14Xn3FONKgqaDOBaLGxUBzg/viewform?embedded=true) to get started.
-            """
-        )
         st.stop()
 
 def regenerate_content(original_content):
@@ -120,35 +102,6 @@ def regenerate_content(original_content):
     except Exception as e:
         return f"Error regenerating content: {str(e)}"
 
-# ---- File Download Functions ----
-
-def download_txt(content):
-    """Creates a downloadable .txt file."""
-    st.download_button(
-        label="Download as .txt",
-        data=content,
-        file_name="generated_content.txt",
-        mime="text/plain"
-    )
-
-def download_pdf(content):
-    """Creates a downloadable .pdf file."""
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font("Arial", size=12)
-    pdf.multi_cell(0, 10, content)
-    
-    pdf_output = io.BytesIO()
-    pdf.output(pdf_output)
-    pdf_output.seek(0)
-
-    st.download_button(
-        label="Download as .pdf",
-        data=pdf_output,
-        file_name="generated_content.pdf",
-        mime="application/pdf"
-    )
-
 # ---- Main Streamlit App ----
 
 # Initialize session tracking
@@ -157,18 +110,6 @@ initialize_session()
 # App Title and Description
 st.title("AI-Powered Ghostwriter")
 st.write("Generate high-quality content and check for originality using Generative AI and Google Search.")
-
-# Add custom CSS to hide the header and the top-right buttons
-hide_streamlit_style = """
-    <style>
-        .css-1r6p8d1 {display: none;} /* Hides the Streamlit logo in the top left */
-        .css-1v3t3fg {display: none;} /* Hides the star button */
-        .css-1r6p8d1 .st-ae {display: none;} /* Hides the Streamlit logo */
-        header {visibility: hidden;} /* Hides the header */
-        .css-1tqja98 {visibility: hidden;} /* Hides the header bar */
-    </style>
-"""
-st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 # Prompt Input Field
 prompt = st.text_area("Enter your prompt:", placeholder="Write a blog about AI trends in 2025.")
@@ -193,10 +134,6 @@ async def main():
                 # Display the generated content safely
                 st.subheader("Generated Content:")
                 st.markdown(generated_text)
-
-                # Provide download options
-                download_txt(generated_text)
-                download_pdf(generated_text)
 
                 # Check for similar content online asynchronously
                 st.subheader("Searching for Similar Content Online:")

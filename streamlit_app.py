@@ -120,7 +120,7 @@ initialize_session()
 
 # App Title and Description
 st.title("AI-Powered Ghostwriter")
-st.write("Generate high-quality content and check for originality using Generative AI and Google Search.")
+st.write("Generate high-quality content and check for originality using Generative AI and Google Search, you can get lifetime access to Grid Pro at Rs999, visit https://evertechcms.in/gridai")
 
 # Add custom CSS to hide the header and the top-right buttons
 hide_streamlit_style = """

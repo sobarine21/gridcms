@@ -51,10 +51,10 @@ async def search_web_async(query, session):
 
     try:
         async with session.get(search_url, params=params) as response:
-            if response.status_code == 200:
-                return await response.json()
+            if response.status == 200:
+                return await response.json()  # Properly get the response JSON
             else:
-                return f"Search API Error: {response.status_code} - {response.text}"
+                return f"Search API Error: {response.status} - {await response.text()}"
     except requests.exceptions.RequestException as e:
         return f"Request failed: {str(e)}"
 

@@ -75,6 +75,14 @@ def check_session_limit():
         time_left = st.session_state.block_time - time.time()
         if time_left > 0:
             st.warning(f"Session limit reached. Try again in {int(time_left)} seconds.")
+            # Show the Pro model onboarding link here
+            st.markdown(
+                """
+                ### Interested in upgrading to Pro?
+                You can unlock unlimited sessions and more powerful models by upgrading to the Pro version. 
+                Please visit the [Pro model onboarding page](https://docs.google.com/forms/d/e/1FAIpQLScktS-G8d2s6xaOcHEwJ9Bqo6r14Xn3FONKgqaDOBaLGxUBzg/viewform?embedded=true) to get started.
+                """
+            )
             st.stop()
         else:
             st.session_state.block_time = None
@@ -82,6 +90,14 @@ def check_session_limit():
     if st.session_state.session_count >= 5:
         st.session_state.block_time = time.time() + 15 * 60  # Block for 15 minutes
         st.warning("Session limit reached. Please wait 15 minutes or upgrade to Pro.")
+        # Show the Pro model onboarding link here
+        st.markdown(
+            """
+            ### Interested in upgrading to Pro?
+            You can unlock unlimited sessions and more powerful models by upgrading to the Pro version. 
+            Please visit the [Pro model onboarding page](https://docs.google.com/forms/d/e/1FAIpQLScktS-G8d2s6xaOcHEwJ9Bqo6r14Xn3FONKgqaDOBaLGxUBzg/viewform?embedded=true) to get started.
+            """
+        )
         st.stop()
 
 def regenerate_content(original_content):

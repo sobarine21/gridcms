@@ -153,8 +153,11 @@ async def main():
             # Show spinner and countdown before AI request
             with st.spinner("Please wait, generating response..."):
                 countdown_time = 5
+                countdown_text = st.empty()  # Create an empty container to update the text
+                
+                # Countdown loop
                 for i in range(countdown_time, 0, -1):
-                    st.write(f"Generating response in {i} seconds...")  # Update countdown message
+                    countdown_text.markdown(f"Generating response in **{i} seconds...**")
                     time.sleep(1)  # Simulate countdown delay
 
                 # After countdown, make the AI request

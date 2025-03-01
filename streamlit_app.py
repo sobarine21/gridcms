@@ -45,7 +45,7 @@ async def search_web_async(query, session):
     search_engine_id = st.secrets["GOOGLE_SEARCH_ENGINE_ID"]
 
     if not api_key or not search_engine_id:
-        return "Google API Key or Search Engine ID is missing."
+        return None  # Return None if API keys are missing
 
     search_url = "https://www.googleapis.com/customsearch/v1"
     params = {"key": api_key, "cx": search_engine_id, "q": query}
@@ -55,9 +55,9 @@ async def search_web_async(query, session):
             if response.status == 200:
                 return await response.json()  # Properly get the response JSON
             else:
-                return f"Search API Error: {response.status} - {await response.text()}"
+                return None  # Return None on error
     except requests.exceptions.RequestException as e:
-        return f"Request failed: {str(e)}"
+        return None  # Return None on exception
 
 def initialize_session():
     """Initializes session variables securely."""
@@ -175,10 +175,10 @@ async def main():
                 st.subheader("Searching for Similar Content Online:")
                 search_results = await search_web_async(generated_text, None)
 
-                # Display search results
-                if isinstance(search_results, str):
-                    st.warning(search_results)
-                elif search_results.get('items'):
+                # Handle None case for search results
+                if search_results is None:
+                    st.warning("Error or no results from the web search.")
+                elif 'items' in search_results and search_results['items']:
                     st.warning("Similar content found on the web:")
                     for result in search_results['items'][:10]:  # Show top 5 results
                         with st.expander(result.get('title', 'No Title')):

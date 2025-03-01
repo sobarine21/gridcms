@@ -175,10 +175,10 @@ async def main():
                 st.subheader("Searching for Similar Content Online:")
                 search_results = await search_web_async(generated_text, None)
 
-                # Handle None case for search results
+                # Validate search results before accessing
                 if search_results is None:
                     st.warning("Error or no results from the web search.")
-                elif 'items' in search_results and search_results['items']:
+                elif isinstance(search_results, dict) and 'items' in search_results and search_results['items']:
                     st.warning("Similar content found on the web:")
                     for result in search_results['items'][:10]:  # Show top 5 results
                         with st.expander(result.get('title', 'No Title')):

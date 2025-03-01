@@ -106,11 +106,13 @@ def regenerate_content(original_content):
 
 def download_file(content):
     """Provides the option to download generated content as a text file."""
-    buffer = StringIO(content)
-    buffer.seek(0)
+    # Convert content to bytes
+    content_bytes = content.encode('utf-8')
+    
+    # Use st.download_button to provide the file download
     st.download_button(
         label="Download as Text File",
-        data=buffer,
+        data=content_bytes,
         file_name="generated_content.txt",
         mime="text/plain"
     )

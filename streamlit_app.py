@@ -197,7 +197,7 @@ st.markdown("""
 # Instructional text with animation
 st.markdown("""
     <h3>🚀 Welcome to AI-Powered Ghostwriter!</h3>
-    <p>Generate high-quality content and check for originality using Generative AI and Google Search. You can get lifetime access to Grid Pro at Rs 999, visit https://evertechcms.in/gridai.</p>
+    <p>Generate high-quality content and check for originality using Generative AI and Google Search. Access Grid Pro at, visit https://evertechcms.in/gridai.</p>
 """, unsafe_allow_html=True)
 
 # Prompt Input Field

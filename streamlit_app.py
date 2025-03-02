@@ -5,6 +5,7 @@ import random
 import uuid
 import asyncio
 import aiohttp
+from difflib import SequenceMatcher
 
 # ---- Helper Functions ----
 
@@ -55,18 +56,32 @@ async def search_web_async(query, session):
     except aiohttp.ClientError as e:
         return None  # Return None on exception
 
-def filter_search_results(results):
-    """Filter search results based on certain criteria like content length, authority, and relevance."""
+def similarity_score(text1, text2):
+    """Returns a similarity score between two texts using difflib."""
+    return SequenceMatcher(None, text1, text2).ratio()
+
+def filter_search_results(results, generated_text):
+    """Filter search results based on higher relevance criteria."""
     if not results or 'items' not in results:
         return []
 
-    # Filter based on the quality of the snippet (e.g., length and authority of the source)
+    # Set a threshold for content similarity (e.g., 0.5 means at least 50% similarity)
+    similarity_threshold = 0.6
     filtered_results = []
+
     for item in results['items']:
-        # Filter results by content snippet relevance and domain authority (e.g., `edu`, `gov` for authoritative sources)
         snippet = item.get('snippet', '')
-        if len(snippet) > 100 and ('edu' in item.get('link', '') or 'gov' in item.get('link', '')):
-            filtered_results.append(item)
+        link = item.get('link', '')
+        title = item.get('title', '')
+
+        # Check content similarity with generated text
+        similarity = similarity_score(generated_text, snippet)
+
+        # Apply stricter conditions: snippet should be relevant, and similarity should be above threshold
+        if len(snippet) > 100 and similarity > similarity_threshold:
+            # Check for authoritative sources (e.g., .edu, .gov, trusted blogs, etc.)
+            if 'edu' in link or 'gov' in link or 'org' in link:
+                filtered_results.append(item)
 
     return filtered_results
 
@@ -251,7 +266,7 @@ async def main():
                     if search_results is None:
                         st.warning("Error or no results from the web search.")
                     else:
-                        filtered_results = filter_search_results(search_results)
+                        filtered_results = filter_search_results(search_results, generated_text)
                         if filtered_results:
                             st.warning("Similar content found on the web:")
                             for result in filtered_results[:5]:  # Show top 5 filtered results

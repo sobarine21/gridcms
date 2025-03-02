@@ -66,7 +66,7 @@ def filter_search_results(results, generated_text):
         return []
 
     # Set a threshold for content similarity (e.g., 0.5 means at least 50% similarity)
-    similarity_threshold = 0.6
+    similarity_threshold = 0.8
     filtered_results = []
 
     for item in results['items']:

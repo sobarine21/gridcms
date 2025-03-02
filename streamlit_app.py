@@ -110,7 +110,8 @@ def download_file(content):
         label="Download as Text File",
         data=content_bytes,
         file_name="generated_content.txt",
-        mime="text/plain"
+        mime="text/plain",
+        use_container_width=True
     )
 
 # ---- Main Streamlit App ----
@@ -122,7 +123,7 @@ initialize_session()
 st.title("AI-Powered Ghostwriter")
 st.write("Generate high-quality content and check for originality using Generative AI and Google Search. You can get lifetime access to Grid Pro at Rs 999, visit https://evertechcms.in/gridai")
 
-# Add custom CSS to apply eye-catching animations and a tech-inspired UI theme
+# Add custom CSS to apply animations and a professional UI theme
 hide_streamlit_style = """
     <style>
         /* Global Styling */
@@ -143,6 +144,8 @@ hide_streamlit_style = """
             font-weight: 600;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
             transition: all 0.3s ease;
+            opacity: 0;
+            animation: fadeIn 1s ease-out forwards;
         }
 
         .stButton button:hover {
@@ -161,6 +164,8 @@ hide_streamlit_style = """
             border: 1px solid #444;
             width: 100%;
             transition: all 0.3s ease;
+            opacity: 0;
+            animation: fadeIn 1.5s ease-out forwards;
         }
 
         .stTextArea textarea:focus {
@@ -183,6 +188,7 @@ hide_streamlit_style = """
             padding: 12px;
             border-radius: 6px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+            animation: fadeIn 1s ease-out forwards;
         }
 
         .stWarning {
@@ -191,6 +197,7 @@ hide_streamlit_style = """
             padding: 12px;
             border-radius: 6px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+            animation: fadeIn 1s ease-out forwards;
         }
 
         /* Expanders Styling */
@@ -212,6 +219,8 @@ hide_streamlit_style = """
             border-radius: 6px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
+            opacity: 0;
+            animation: fadeIn 2s ease-out forwards;
         }
 
         .stDownloadButton:hover {
@@ -220,11 +229,7 @@ hide_streamlit_style = """
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
         }
 
-        /* Subtle animations for content */
-        .stExpander, .stButton button, .stTextArea textarea {
-            animation: fadeIn 0.5s ease-in-out;
-        }
-
+        /* Animations for content */
         @keyframes fadeIn {
             0% {
                 opacity: 0;

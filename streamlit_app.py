@@ -5,7 +5,6 @@ import random
 import uuid
 import asyncio
 import aiohttp
-from difflib import SequenceMatcher
 
 # ---- Helper Functions ----
 
@@ -45,7 +44,7 @@ async def search_web_async(query, session):
         return None  # Return None if API keys are missing
 
     search_url = "https://www.googleapis.com/customsearch/v1"
-    params = {"key": api_key, "cx": search_engine_id, "q": query, "num": 10}  # Limit to 10 results
+    params = {"key": api_key, "cx": search_engine_id, "q": query}
 
     try:
         async with session.get(search_url, params=params) as response:
@@ -53,35 +52,8 @@ async def search_web_async(query, session):
                 return await response.json()  # Properly get the response JSON
             else:
                 return None  # Return None on error
-    except aiohttp.ClientError as e:
+    except requests.exceptions.RequestException as e:
         return None  # Return None on exception
-
-def similarity_score(text1, text2):
-    """Returns a similarity score between two texts using difflib."""
-    return SequenceMatcher(None, text1, text2).ratio()
-
-def filter_search_results(results, generated_text):
-    """Filter search results based on relevance to the generated content."""
-    if not results or 'items' not in results:
-        return []
-
-    # Set a threshold for content similarity (e.g., 0.5 means at least 50% similarity)
-    similarity_threshold = 0.5
-    filtered_results = []
-
-    for item in results['items']:
-        snippet = item.get('snippet', '')
-        link = item.get('link', '')
-        title = item.get('title', '')
-
-        # Check content similarity with generated text
-        similarity = similarity_score(generated_text, snippet)
-
-        # Apply a relaxed condition: snippet should be relevant, and similarity should be above threshold
-        if len(snippet) > 100 and similarity > similarity_threshold:
-            filtered_results.append(item)
-
-    return filtered_results
 
 def initialize_session():
     """Initializes session variables securely."""
@@ -213,6 +185,12 @@ st.markdown("""
         color: #00d1b2;
         text-decoration: none;
     }
+    /* Hide Streamlit's default UI elements */
+    .css-1r6p8d1 {display: none;} /* Hides the Streamlit logo in the top left */
+    .css-1v3t3fg {display: none;} /* Hides the star button */
+    .css-1r6p8d1 .st-ae {display: none;} /* Hides the Streamlit logo */
+    header {visibility: hidden;} /* Hides the header */
+    .css-1tqja98 {visibility: hidden;} /* Hides the header bar */
     </style>
 """, unsafe_allow_html=True)
 
@@ -221,6 +199,7 @@ st.markdown("""
     <h3>🚀 Welcome to AI-Powered Ghostwriter!</h3>
     <p>Generate high-quality content and check for originality using Generative AI and Google Search. Access the <a href="https://evertechcms.in/gridai" target="_blank"><strong>Grid AI Pro</strong></a> model now!</p>
 """, unsafe_allow_html=True)
+
 
 # Prompt Input Field
 prompt = st.text_area("Enter your prompt:", placeholder="Write a blog about AI trends in 2025.", height=150)
@@ -260,20 +239,18 @@ async def main():
                     st.subheader("Searching for Similar Content Online:")
                     search_results = await search_web_async(generated_text, session)
 
-                    # Filter and validate search results before accessing
+                    # Validate search results before accessing
                     if search_results is None:
                         st.warning("Error or no results from the web search.")
+                    elif isinstance(search_results, dict) and 'items' in search_results and search_results['items']:
+                        st.warning("Similar content found on the web:")
+                        for result in search_results['items'][:10]:  # Show top 5 results
+                            with st.expander(result.get('title', 'No Title')):
+                                st.write(f"**Source:** [{result.get('link', 'Unknown')}]({result.get('link', '#')})")
+                                st.write(f"**Snippet:** {result.get('snippet', 'No snippet available.')}")
+                                st.write("---")
                     else:
-                        filtered_results = filter_search_results(search_results, generated_text)
-                        if filtered_results:
-                            st.warning("Similar content found on the web:")
-                            for result in filtered_results[:5]:  # Show top 5 filtered results
-                                with st.expander(result.get('title', 'No Title')):
-                                    st.write(f"**Source:** [{result.get('link', 'Unknown')}]({result.get('link', '#')})")
-                                    st.write(f"**Snippet:** {result.get('snippet', 'No snippet available.')}")
-                                    st.write("---")
-                        else:
-                            st.success("No similar content found online. Your content seems original!")
+                        st.success("No similar content found online. Your content seems original!")
 
                     # Trigger Streamlit balloons after generation
                     st.balloons()

@@ -61,12 +61,12 @@ def similarity_score(text1, text2):
     return SequenceMatcher(None, text1, text2).ratio()
 
 def filter_search_results(results, generated_text):
-    """Filter search results based on higher relevance criteria."""
+    """Filter search results based on relevance to the generated content."""
     if not results or 'items' not in results:
         return []
 
     # Set a threshold for content similarity (e.g., 0.5 means at least 50% similarity)
-    similarity_threshold = 0.6
+    similarity_threshold = 0.5
     filtered_results = []
 
     for item in results['items']:
@@ -77,11 +77,9 @@ def filter_search_results(results, generated_text):
         # Check content similarity with generated text
         similarity = similarity_score(generated_text, snippet)
 
-        # Apply stricter conditions: snippet should be relevant, and similarity should be above threshold
+        # Apply a relaxed condition: snippet should be relevant, and similarity should be above threshold
         if len(snippet) > 100 and similarity > similarity_threshold:
-            # Check for authoritative sources (e.g., .edu, .gov, trusted blogs, etc.)
-            if 'edu' in link or 'gov' in link or 'org' in link:
-                filtered_results.append(item)
+            filtered_results.append(item)
 
     return filtered_results
 

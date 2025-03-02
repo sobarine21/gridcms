@@ -44,7 +44,7 @@ async def search_web_async(query, session):
         return None  # Return None if API keys are missing
 
     search_url = "https://www.googleapis.com/customsearch/v1"
-    params = {"key": api_key, "cx": search_engine_id, "q": query}
+    params = {"key": api_key, "cx": search_engine_id, "q": query, "num": 10}  # Limit to 10 results
 
     try:
         async with session.get(search_url, params=params) as response:
@@ -52,7 +52,7 @@ async def search_web_async(query, session):
                 return await response.json()  # Properly get the response JSON
             else:
                 return None  # Return None on error
-    except requests.exceptions.RequestException as e:
+    except aiohttp.ClientError as e:
         return None  # Return None on exception
 
 def initialize_session():
@@ -185,12 +185,6 @@ st.markdown("""
         color: #00d1b2;
         text-decoration: none;
     }
-    /* Hide Streamlit's default UI elements */
-    .css-1r6p8d1 {display: none;} /* Hides the Streamlit logo in the top left */
-    .css-1v3t3fg {display: none;} /* Hides the star button */
-    .css-1r6p8d1 .st-ae {display: none;} /* Hides the Streamlit logo */
-    header {visibility: hidden;} /* Hides the header */
-    .css-1tqja98 {visibility: hidden;} /* Hides the header bar */
     </style>
 """, unsafe_allow_html=True)
 
@@ -199,7 +193,6 @@ st.markdown("""
     <h3>🚀 Welcome to AI-Powered Ghostwriter!</h3>
     <p>Generate high-quality content and check for originality using Generative AI and Google Search. Access the <a href="https://evertechcms.in/gridai" target="_blank"><strong>Grid AI Pro</strong></a> model now!</p>
 """, unsafe_allow_html=True)
-
 
 # Prompt Input Field
 prompt = st.text_area("Enter your prompt:", placeholder="Write a blog about AI trends in 2025.", height=150)

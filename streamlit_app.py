@@ -55,6 +55,20 @@ async def search_web_async(query, session):
     except aiohttp.ClientError as e:
         return None  # Return None on exception
 
+def filter_search_results(results):
+    """Filter search results based on certain criteria like content length, authority, and relevance."""
+    if not results or 'items' not in results:
+        return []
+
+    # Filter based on the quality of the snippet (e.g., length and authority of the source)
+    filtered_results = []
+    for item in results['items']:
+        # Filter results by source domain authority or snippet relevance
+        if len(item.get('snippet', '')) > 100 and 'edu' in item.get('link', ''):
+            filtered_results.append(item)
+
+    return filtered_results
+
 def initialize_session():
     """Initializes session variables securely."""
     if 'session_count' not in st.session_state:
@@ -232,18 +246,20 @@ async def main():
                     st.subheader("Searching for Similar Content Online:")
                     search_results = await search_web_async(generated_text, session)
 
-                    # Validate search results before accessing
+                    # Filter and validate search results before accessing
                     if search_results is None:
                         st.warning("Error or no results from the web search.")
-                    elif isinstance(search_results, dict) and 'items' in search_results and search_results['items']:
-                        st.warning("Similar content found on the web:")
-                        for result in search_results['items'][:10]:  # Show top 5 results
-                            with st.expander(result.get('title', 'No Title')):
-                                st.write(f"**Source:** [{result.get('link', 'Unknown')}]({result.get('link', '#')})")
-                                st.write(f"**Snippet:** {result.get('snippet', 'No snippet available.')}")
-                                st.write("---")
                     else:
-                        st.success("No similar content found online. Your content seems original!")
+                        filtered_results = filter_search_results(search_results)
+                        if filtered_results:
+                            st.warning("Similar content found on the web:")
+                            for result in filtered_results[:5]:  # Show top 5 filtered results
+                                with st.expander(result.get('title', 'No Title')):
+                                    st.write(f"**Source:** [{result.get('link', 'Unknown')}]({result.get('link', '#')})")
+                                    st.write(f"**Snippet:** {result.get('snippet', 'No snippet available.')}")
+                                    st.write("---")
+                        else:
+                            st.success("No similar content found online. Your content seems original!")
 
                     # Trigger Streamlit balloons after generation
                     st.balloons()

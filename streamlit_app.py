@@ -122,93 +122,122 @@ initialize_session()
 st.title("AI-Powered Ghostwriter")
 st.write("Generate high-quality content and check for originality using Generative AI and Google Search. You can get lifetime access to Grid Pro at Rs 999, visit https://evertechcms.in/gridai")
 
-# Add custom CSS to hide the header and the top-right buttons and apply an enterprise-grade UI theme
+# Add custom CSS to apply eye-catching animations and a tech-inspired UI theme
 hide_streamlit_style = """
     <style>
         /* Global Styling */
         body {
-            background-color: #1e1e1e;
-            color: #dcdcdc;
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            line-height: 1.5;
+            background: linear-gradient(135deg, #1e1e1e, #2a2a2a);
+            color: #e4e4e4;
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
         }
 
+        /* Button Styling */
         .stButton button {
-            background-color: #4e8ef7;
+            background-color: #5f6368;
             color: white;
-            border-radius: 6px;
-            padding: 12px 24px;
-            transition: background-color 0.3s ease;
-            font-weight: bold;
-            font-size: 14px;
+            border-radius: 10px;
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: 600;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
         }
 
         .stButton button:hover {
-            background-color: #3a6ea5;
+            background-color: #3a3a3a;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
         }
 
+        /* Text Area Styling */
         .stTextArea textarea {
             background-color: #333;
-            color: #dcdcdc;
-            border-radius: 8px;
+            color: #e4e4e4;
+            border-radius: 10px;
             padding: 12px;
             font-size: 16px;
             border: 1px solid #444;
             width: 100%;
+            transition: all 0.3s ease;
         }
 
+        .stTextArea textarea:focus {
+            border-color: #5f6368;
+            outline: none;
+            box-shadow: 0 0 5px #5f6368;
+        }
+
+        /* Custom Text Styling */
         .stMarkdown {
-            color: #b0b0b0;
+            color: #e4e4e4;
+            font-size: 18px;
+            line-height: 1.8;
+        }
+
+        /* Success and Warning Styles */
+        .stSuccess {
+            background-color: #4caf50;
+            color: #ffffff;
+            padding: 12px;
+            border-radius: 6px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
         }
 
         .stWarning {
             background-color: #ff5722;
-            color: #fff;
-            padding: 10px;
-            border-radius: 6px;
-        }
-
-        .stSuccess {
-            background-color: #4caf50;
-            color: #fff;
-            padding: 10px;
-            border-radius: 6px;
-        }
-
-        .stExpander {
-            background-color: #2a2a2a;
-            color: #dcdcdc;
-            border-radius: 8px;
+            color: #ffffff;
             padding: 12px;
+            border-radius: 6px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
         }
 
-        /* Customizing the dropdown button */
-        .stSelectbox, .stRadio, .stSlider {
+        /* Expanders Styling */
+        .stExpander {
             background-color: #444;
-            color: #dcdcdc;
-            border-radius: 8px;
-            border: 1px solid #555;
-            padding: 8px;
+            color: #e4e4e4;
+            border-radius: 10px;
+            padding: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
+        /* Hover Effect for Download Button */
         .stDownloadButton {
-            background-color: #0e76a8;
+            background-color: #008CBA;
             color: white;
-            font-weight: bold;
-            padding: 10px;
-            border-radius: 5px;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 6px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
         }
 
         .stDownloadButton:hover {
-            background-color: #0a5f7c;
+            background-color: #005f73;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
         }
 
-        /* Hide Streamlit logo and elements */
+        /* Subtle animations for content */
+        .stExpander, .stButton button, .stTextArea textarea {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        /* Hide Streamlit's default UI elements */
         .css-1r6p8d1 {display: none;} /* Hides the Streamlit logo in the top left */
         .css-1v3t3fg {display: none;} /* Hides the star button */
-        .css-1r6p8d1 .st-ae {display: none;} /* Hides the Streamlit logo */
         header {visibility: hidden;} /* Hides the header */
-        .css-1tqja98 {visibility: hidden;} /* Hides the header bar */
     </style>
 """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)

@@ -185,6 +185,12 @@ st.markdown("""
         color: #00d1b2;
         text-decoration: none;
     }
+    /* Hide Streamlit's default UI elements */
+    .css-1r6p8d1 {display: none;} /* Hides the Streamlit logo in the top left */
+    .css-1v3t3fg {display: none;} /* Hides the star button */
+    .css-1r6p8d1 .st-ae {display: none;} /* Hides the Streamlit logo */
+    header {visibility: hidden;} /* Hides the header */
+    .css-1tqja98 {visibility: hidden;} /* Hides the header bar */
     </style>
 """, unsafe_allow_html=True)
 

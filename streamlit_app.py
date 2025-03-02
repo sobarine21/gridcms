@@ -194,11 +194,12 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Instructional text with animation
+# Instructional text with animation and clickable link
 st.markdown("""
     <h3>🚀 Welcome to AI-Powered Ghostwriter!</h3>
-    <p>Generate high-quality content and check for originality using Generative AI and Google Search. Access Grid Pro at, visit https://evertechcms.in/gridai.</p>
+    <p>Generate high-quality content and check for originality using Generative AI and Google Search. Access the <a href="https://evertechcms.in/gridai" target="_blank"><strong>Grid AI Pro</strong></a> model now!</p>
 """, unsafe_allow_html=True)
+
 
 # Prompt Input Field
 prompt = st.text_area("Enter your prompt:", placeholder="Write a blog about AI trends in 2025.", height=150)

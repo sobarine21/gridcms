@@ -76,7 +76,7 @@ def check_session_limit():
         else:
             st.session_state.block_time = None
 
-    if st.session_state.session_count >= 2:
+    if st.session_state.session_count >= 5:
         st.session_state.block_time = time.time() + 15 * 60  # Block for 15 minutes
         st.warning("Session limit reached. Please wait 15 minutes or upgrade to Pro.")
         st.markdown("You can upgrade to the Pro model & Get lifetime access at just Rs 999 [here](https://forms.gle/TJWH9HJ4kqUTN7Hp9).", unsafe_allow_html=True)

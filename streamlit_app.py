@@ -5,6 +5,9 @@ import random
 import uuid
 import asyncio
 import aiohttp
+import qrcode
+from io import BytesIO
+from datetime import datetime, timedelta
 
 # ---- Helper Functions ----
 
@@ -113,26 +116,101 @@ def download_file(content):
         mime="text/plain"
     )
 
+def create_qr_code(text):
+    """Creates a QR code from the given text."""
+    qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_L, box_size=10, border=4)
+    qr.add_data(text)
+    qr.make(fit=True)
+
+    # Convert QR code to image (PIL image)
+    img = qr.make_image(fill='black', back_color='white')
+
+    # Convert PIL image to BytesIO for Streamlit to render
+    img_bytes = BytesIO()
+    img.save(img_bytes)
+    img_bytes.seek(0)
+
+    return img_bytes
+
 # ---- Main Streamlit App ----
 
 # Initialize session tracking
 initialize_session()
 
 # App Title and Description
-st.title("AI-Powered Ghostwriter")
-st.write("Generate high-quality content and check for originality using Generative AI and Google Search, you can get lifetime access to Grid Pro at Rs 999, visit https://evertechcms.in/gridai")
-
-# Add custom CSS to hide the header and the top-right buttons
-hide_streamlit_style = """
+st.set_page_config(page_title="AI-Powered Ghostwriter", page_icon=":robot:", layout="centered")
+st.markdown("""
     <style>
-        .css-1r6p8d1 {display: none;} /* Hides the Streamlit logo in the top left */
-        .css-1v3t3fg {display: none;} /* Hides the star button */
-        .css-1r6p8d1 .st-ae {display: none;} /* Hides the Streamlit logo */
-        header {visibility: hidden;} /* Hides the header */
-        .css-1tqja98 {visibility: hidden;} /* Hides the header bar */
+    body {
+        background: linear-gradient(to right, #00c6ff, #0072ff);
+        color: white;
+        font-family: 'Arial', sans-serif;
+    }
+    .stButton>button {
+        background-color: #00d1b2;
+        color: white;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+    }
+    .stButton>button:hover {
+        background-color: #00b59d;
+    }
+    .stTextArea textarea {
+        background-color: rgba(255, 255, 255, 0.1);
+        border: 1px solid #00d1b2;
+        color: white;
+        padding: 10px;
+        font-size: 16px;
+        border-radius: 8px;
+        width: 100%;
+        max-width: 800px;
+        height: 150px;
+        box-sizing: border-box;
+    }
+    .stTextArea textarea:focus {
+        outline: none;
+        border-color: #00b59d;
+    }
+    .stMarkdown h3 {
+        text-align: center;
+        color: #f0f0f0;
+        font-size: 28px;
+        font-weight: bold;
+    }
+    .stMarkdown p {
+        color: #f0f0f0;
+        font-size: 18px;
+        text-align: center;
+        padding-bottom: 20px;
+    }
+    .stSpinner {
+        color: #00d1b2;
+    }
+    .stImage img {
+        border-radius: 15px;
+    }
+    .footer {
+        text-align: center;
+        color: #ffffff;
+        padding: 15px;
+        font-size: 14px;
+    }
+    .footer a {
+        color: #00d1b2;
+        text-decoration: none;
+    }
     </style>
-"""
-st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+""", unsafe_allow_html=True)
+
+# Instructional text with animation
+st.markdown("""
+    <h3>🚀 Welcome to AI-Powered Ghostwriter!</h3>
+    <p>Generate high-quality content and check for originality using Generative AI and Google Search, you can get lifetime access to Grid Pro at Rs 999, visit https://evertechcms.in/gridai</p>
+""", unsafe_allow_html=True)
 
 # Prompt Input Field
 prompt = st.text_area("Enter your prompt:", placeholder="Write a blog about AI trends in 2025.")
@@ -168,6 +246,10 @@ async def main():
                     st.subheader("Generated Content:")
                     st.markdown(generated_text)
 
+                    # Generate and display QR code for the response text
+                    img_bytes = create_qr_code(generated_text)
+                    st.image(img_bytes, caption="📱 Scan to View Response", use_container_width=True)
+
                     # Check for similar content online asynchronously
                     st.subheader("Searching for Similar Content Online:")
                     search_results = await search_web_async(generated_text, session)
@@ -197,3 +279,13 @@ async def main():
 
 # Run the async main function
 asyncio.run(main())
+
+# Triggering cool animations after the process finishes
+st.balloons()  # Trigger streamlit balloons after generation
+
+# Footer with links
+st.markdown("""
+    <div class="footer">
+        <p>Powered by Streamlit and Google Generative AI | <a href="https://github.com/yourusername/yourrepo" target="_blank">GitHub</a></p>
+    </div>
+""", unsafe_allow_html=True)

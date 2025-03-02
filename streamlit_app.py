@@ -120,7 +120,7 @@ initialize_session()
 
 # App Title and Description
 st.title("AI-Powered Ghostwriter")
-st.write("Generate high-quality content and check for originality using Generative AI and Google Search, you can get lifetime access to Grid Pro at Rs 999, visit https://evertechcms.in/gridai")
+st.write("Generate high-quality content and check for originality using Generative AI and Google Search. You can get lifetime access to Grid Pro at Rs 999, visit https://evertechcms.in/gridai")
 
 # Add custom CSS to hide the header and the top-right buttons and apply a tech-inspired UI theme
 hide_streamlit_style = """
@@ -183,6 +183,17 @@ hide_streamlit_style = """
         .css-1r6p8d1 .st-ae {display: none;} /* Hides the Streamlit logo */
         header {visibility: hidden;} /* Hides the header */
         .css-1tqja98 {visibility: hidden;} /* Hides the header bar */
+
+        /* Animation for countdown */
+        @keyframes countdown {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .countdown-text {
+            animation: countdown 1s ease-in-out infinite;
+        }
     </style>
 """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
@@ -206,7 +217,7 @@ async def main():
                 
                 # Countdown loop with dynamic updates
                 for i in range(countdown_time, 0, -1):
-                    countdown_text.markdown(f"Generating response in **{i} seconds...**")
+                    countdown_text.markdown(f"<p class='countdown-text'>Generating response in **{i} seconds...**</p>", unsafe_allow_html=True)
                     time.sleep(1)  # Simulate countdown delay
 
                 # After countdown, make the AI request

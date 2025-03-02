@@ -63,8 +63,9 @@ def filter_search_results(results):
     # Filter based on the quality of the snippet (e.g., length and authority of the source)
     filtered_results = []
     for item in results['items']:
-        # Filter results by source domain authority or snippet relevance
-        if len(item.get('snippet', '')) > 100 and 'edu' in item.get('link', ''):
+        # Filter results by content snippet relevance and domain authority (e.g., `edu`, `gov` for authoritative sources)
+        snippet = item.get('snippet', '')
+        if len(snippet) > 100 and ('edu' in item.get('link', '') or 'gov' in item.get('link', '')):
             filtered_results.append(item)
 
     return filtered_results

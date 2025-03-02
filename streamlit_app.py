@@ -122,20 +122,53 @@ initialize_session()
 st.title("AI-Powered Ghostwriter")
 st.write("Generate high-quality content and check for originality using Generative AI and Google Search, you can get lifetime access to Grid Pro at Rs 999, visit https://evertechcms.in/gridai")
 
-# Add custom CSS to hide the header and the top-right buttons
+# Add custom CSS to hide the header and the top-right buttons and apply a tech-inspired UI theme
 hide_streamlit_style = """
     <style>
+        /* Custom Tech UI */
+        body {
+            background-color: #121212;
+            color: white;
+            font-family: 'Roboto', sans-serif;
+        }
         .css-1r6p8d1 {display: none;} /* Hides the Streamlit logo in the top left */
         .css-1v3t3fg {display: none;} /* Hides the star button */
         .css-1r6p8d1 .st-ae {display: none;} /* Hides the Streamlit logo */
         header {visibility: hidden;} /* Hides the header */
         .css-1tqja98 {visibility: hidden;} /* Hides the header bar */
+        
+        .stButton button {
+            background-color: #0a74da;
+            color: white;
+            border-radius: 5px;
+            padding: 10px 20px;
+            transition: background-color 0.3s ease;
+        }
+        .stButton button:hover {
+            background-color: #005f99;
+        }
+        .stTextArea textarea {
+            background-color: #333;
+            color: white;
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 16px;
+        }
+        .stMarkdown {
+            color: #4CAF50;
+        }
+        .stWarning {
+            background-color: #ff9800;
+        }
+        .stSuccess {
+            background-color: #4caf50;
+        }
     </style>
 """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 # Prompt Input Field
-prompt = st.text_area("Enter your prompt:", placeholder="Write a blog about AI trends in 2025.")
+prompt = st.text_area("Enter your prompt:", placeholder="Write a blog about AI trends in 2025.", height=150)
 
 # Session management to check for block time and session limits
 check_session_limit()

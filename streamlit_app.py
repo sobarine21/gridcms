@@ -120,132 +120,79 @@ def download_file(content):
 initialize_session()
 
 # App Title and Description
-st.title("AI-Powered Ghostwriter")
-st.write("Generate high-quality content and check for originality using Generative AI and Google Search. You can get lifetime access to Grid Pro at Rs 999, visit https://evertechcms.in/gridai")
-
-# Add custom CSS to apply animations and a professional UI theme
-hide_streamlit_style = """
+st.set_page_config(page_title="AI-Powered Ghostwriter", page_icon=":robot:", layout="centered")
+st.markdown("""
     <style>
-        /* Global Styling */
-        body {
-            background: linear-gradient(135deg, #1e1e1e, #2a2a2a);
-            color: #e4e4e4;
-            font-family: 'Arial', sans-serif;
-            line-height: 1.6;
-        }
-
-        /* Button Styling */
-        .stButton button {
-            background-color: #5f6368;
-            color: white;
-            border-radius: 10px;
-            padding: 14px 28px;
-            font-size: 16px;
-            font-weight: 600;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-            transition: all 0.3s ease;
-            opacity: 0;
-            animation: fadeIn 1s ease-out forwards;
-        }
-
-        .stButton button:hover {
-            background-color: #3a3a3a;
-            transform: translateY(-3px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-        }
-
-        /* Text Area Styling */
-        .stTextArea textarea {
-            background-color: #333;
-            color: #e4e4e4;
-            border-radius: 10px;
-            padding: 12px;
-            font-size: 16px;
-            border: 1px solid #444;
-            width: 100%;
-            transition: all 0.3s ease;
-            opacity: 0;
-            animation: fadeIn 1.5s ease-out forwards;
-        }
-
-        .stTextArea textarea:focus {
-            border-color: #5f6368;
-            outline: none;
-            box-shadow: 0 0 5px #5f6368;
-        }
-
-        /* Custom Text Styling */
-        .stMarkdown {
-            color: #e4e4e4;
-            font-size: 18px;
-            line-height: 1.8;
-        }
-
-        /* Success and Warning Styles */
-        .stSuccess {
-            background-color: #4caf50;
-            color: #ffffff;
-            padding: 12px;
-            border-radius: 6px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
-            animation: fadeIn 1s ease-out forwards;
-        }
-
-        .stWarning {
-            background-color: #ff5722;
-            color: #ffffff;
-            padding: 12px;
-            border-radius: 6px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
-            animation: fadeIn 1s ease-out forwards;
-        }
-
-        /* Expanders Styling */
-        .stExpander {
-            background-color: #444;
-            color: #e4e4e4;
-            border-radius: 10px;
-            padding: 16px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Hover Effect for Download Button */
-        .stDownloadButton {
-            background-color: #008CBA;
-            color: white;
-            padding: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            border-radius: 6px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            opacity: 0;
-            animation: fadeIn 2s ease-out forwards;
-        }
-
-        .stDownloadButton:hover {
-            background-color: #005f73;
-            transform: translateY(-3px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-        }
-
-        /* Animations for content */
-        @keyframes fadeIn {
-            0% {
-                opacity: 0;
-            }
-            100% {
-                opacity: 1;
-            }
-        }
-
-        /* Hide Streamlit's default UI elements */
-        .css-1r6p8d1 {display: none;} /* Hides the Streamlit logo in the top left */
-        .css-1v3t3fg {display: none;} /* Hides the star button */
-        header {visibility: hidden;} /* Hides the header */
+    body {
+        background: linear-gradient(to right, #00c6ff, #0072ff);
+        color: white;
+        font-family: 'Arial', sans-serif;
+    }
+    .stButton>button {
+        background-color: #00d1b2;
+        color: white;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+    }
+    .stButton>button:hover {
+        background-color: #00b59d;
+    }
+    .stTextArea textarea {
+        background-color: rgba(255, 255, 255, 0.1);
+        border: 1px solid #00d1b2;
+        color: white;
+        padding: 10px;
+        font-size: 16px;
+        border-radius: 8px;
+        width: 100%;
+        max-width: 800px;
+        height: 150px;
+        box-sizing: border-box;
+    }
+    .stTextArea textarea:focus {
+        outline: none;
+        border-color: #00b59d;
+    }
+    .stMarkdown h3 {
+        text-align: center;
+        color: #f0f0f0;
+        font-size: 28px;
+        font-weight: bold;
+    }
+    .stMarkdown p {
+        color: #f0f0f0;
+        font-size: 18px;
+        text-align: center;
+        padding-bottom: 20px;
+    }
+    .stSpinner {
+        color: #00d1b2;
+    }
+    .stImage img {
+        border-radius: 15px;
+    }
+    .footer {
+        text-align: center;
+        color: #ffffff;
+        padding: 15px;
+        font-size: 14px;
+    }
+    .footer a {
+        color: #00d1b2;
+        text-decoration: none;
+    }
     </style>
-"""
-st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+""", unsafe_allow_html=True)
+
+# Instructional text with animation
+st.markdown("""
+    <h3>🚀 Welcome to AI-Powered Ghostwriter!</h3>
+    <p>Generate high-quality content and check for originality using Generative AI and Google Search. You can get lifetime access to Grid Pro at Rs 999, visit https://evertechcms.in/gridai.</p>
+""", unsafe_allow_html=True)
 
 # Prompt Input Field
 prompt = st.text_area("Enter your prompt:", placeholder="Write a blog about AI trends in 2025.", height=150)
@@ -313,3 +260,10 @@ async def main():
 
 # Run the async main function
 asyncio.run(main())
+
+# Footer with links
+st.markdown("""
+    <div class="footer">
+        <p>Powered by Streamlit and Google Generative AI | <a href="https://github.com/yourusername/yourrepo" target="_blank">GitHub</a></p>
+    </div>
+""", unsafe_allow_html=True)

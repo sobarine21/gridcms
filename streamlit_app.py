@@ -5,6 +5,8 @@ import random
 import uuid
 import asyncio
 import aiohttp
+from gtts import gTTS
+import os
 
 # ---- Helper Functions ----
 
@@ -68,8 +70,9 @@ def initialize_session():
 
 def check_session_limit():
     """Checks if the user has reached the session limit and manages block time."""
+    current_time = time.time()
     if st.session_state.block_time:
-        time_left = st.session_state.block_time - time.time()
+        time_left = st.session_state.block_time - current_time
         if time_left > 0:
             st.warning(f"Session limit reached. Try again in {int(time_left)} seconds or upgrade to pro, https://evertechcms.in/gridai")
             st.stop()
@@ -77,10 +80,22 @@ def check_session_limit():
             st.session_state.block_time = None
 
     if st.session_state.session_count >= 2:
-        st.session_state.block_time = time.time() + 15 * 60  # Block for 15 minutes
+        st.session_state.block_time = current_time + 15 * 60  # Block for 1 minute
         st.warning("Session limit reached. Please wait 15 minutes or upgrade to Pro.")
         st.markdown("You can upgrade to the Pro model & Get lifetime access at just Rs 999 [here](https://forms.gle/TJWH9HJ4kqUTN7Hp9).", unsafe_allow_html=True)
+        st.experimental_set_query_params(user_hash=st.session_state.user_hash, block_time=st.session_state.block_time)
         st.stop()
+
+# Refresh the page after the block time has passed
+def auto_refresh():
+    if 'block_time' in st.session_state and st.session_state.block_time:
+        time_left = st.session_state.block_time - time.time()
+        if time_left <= 0:
+            st.experimental_set_query_params(user_hash=st.session_state.user_hash)
+            st.experimental_rerun()
+
+# Call auto_refresh function to check block time and refresh if needed
+auto_refresh()
 
 def regenerate_content(original_content):
     """Generates rewritten content to ensure originality."""
@@ -100,19 +115,28 @@ def regenerate_content(original_content):
     except Exception as e:
         return f"Error regenerating content: {str(e)}"
 
-def download_file(content):
-    """Provides the option to download generated content as a text file."""
+def download_file(content, filename, label, mime_type):
+    """Provides the option to download content as a file."""
     # Convert content to bytes
-    content_bytes = content.encode('utf-8')
+    content_bytes = content.encode('utf-8') if isinstance(content, str) else content
     
     # Use st.download_button to provide the file download
     st.download_button(
-        label="Download as Text File",
+        label=label,
         data=content_bytes,
-        file_name="generated_content.txt",
-        mime="text/plain",
+        file_name=filename,
+        mime=mime_type,
         use_container_width=True
     )
+
+def text_to_audio(text):
+    """Convert text to audio using gTTS."""
+    # Remove asterisks from text
+    text = text.replace("*", "")
+    tts = gTTS(text=text, lang='en')
+    audio_path = f"generated_content_{uuid.uuid4()}.mp3"
+    tts.save(audio_path)
+    return audio_path
 
 # ---- Main Streamlit App ----
 
@@ -244,7 +268,7 @@ async def main():
                         st.warning("Error or no results from the web search.")
                     elif isinstance(search_results, dict) and 'items' in search_results and search_results['items']:
                         st.warning("Similar content found on the web:")
-                        for result in search_results['items'][:10]:  # Show top 5 results
+                        for result in search_results['items'][:10]:  # Show top 10 results
                             with st.expander(result.get('title', 'No Title')):
                                 st.write(f"**Source:** [{result.get('link', 'Unknown')}]({result.get('link', '#')})")
                                 st.write(f"**Snippet:** {result.get('snippet', 'No snippet available.')}")
@@ -256,14 +280,41 @@ async def main():
                     st.balloons()
 
                     # Allow download of the generated content
-                    download_file(generated_text)
+                    download_file(generated_text, "generated_content.txt", "Download as Text File", "text/plain")
 
-    if st.session_state.get('generated_text'):
+    if 'generated_text' in st.session_state and st.session_state.generated_text:
+        if st.button("Convert to Podcast"):
+            with st.spinner("Generating podcast..."):
+                generated_text = st.session_state.generated_text
+                audio_path = text_to_audio(generated_text)
+                with open(audio_path, "rb") as audio_file:
+                    st.download_button(
+                        label="Download as Podcast",
+                        data=audio_file,
+                        file_name="generated_content.mp3",
+                        mime="audio/mpeg"
+                    )
+                os.remove(audio_path)  # Clean up the audio file after download
+
+    if 'generated_text' in st.session_state and st.session_state.generated_text:
         if st.button("Regenerate Content"):
             regenerated_text = regenerate_content(st.session_state.generated_text)
             st.subheader("Regenerated Content:")
             st.markdown(regenerated_text)
-            download_file(regenerated_text)
+            download_file(regenerated_text, "regenerated_content.txt", "Download as Text File", "text/plain")
+
+            # Option to convert the regenerated content to audio
+            if st.button("Convert Regenerated Content to Podcast"):
+                with st.spinner("Generating podcast..."):
+                    audio_path = text_to_audio(regenerated_text)
+                    with open(audio_path, "rb") as audio_file:
+                        st.download_button(
+                            label="Download Regenerated Content as Podcast",
+                            data=audio_file,
+                            file_name="regenerated_content.mp3",
+                            mime="audio/mpeg"
+                        )
+                    os.remove(audio_path)  # Clean up the audio file after download
 
 # Run the async main function
 asyncio.run(main())
